@@ -1,12 +1,12 @@
 {
-    "name": "abobakerMohsan/laravel-auth-tracker",
+    "name": "alshahari/laravel-auth-tracker",
     "description": "Track and manage sessions, Passport tokens and Sanctum tokens in Laravel.",
     "license": "MIT",
     "authors": [
         {
             "name": "abobaker Mohsan",
             "email": "abobaker.m2017@gmail.com",
-            "homepage": "https://github.com/abobakerMohsan",
+            "homepage": "https://github.com/abobakeralshahari",
             "role": "Developer"
         }
     ],

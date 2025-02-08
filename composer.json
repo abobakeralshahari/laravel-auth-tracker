@@ -1,5 +1,5 @@
 {
-    "name": "alshahari/laravel-auth-tracker",
+    "name": "abobakeralshahari/laravel-auth-tracker",
     "description": "Track and manage sessions, Passport tokens and Sanctum tokens in Laravel.",
     "license": "MIT",
     "authors": [

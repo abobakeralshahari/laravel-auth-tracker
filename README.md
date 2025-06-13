@@ -56,8 +56,8 @@ the sessions only in the client browser and the array driver.
 
 Install the package with composer:
 
-```bash
-composer require abobakerMohsan/laravel-auth-tracker
+```bash 
+composer require alshahari/laravel-auth-tracker
 ```
 
 Publish the configuration file (`config/auth_tracker.php`) with:

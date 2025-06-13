@@ -2,7 +2,7 @@
 
 namespace abobakerMohsan\AuthTracker\Traits;
 
-use ALajusticia\Expirable\ExpirableEloquentQueryBuilder;
+use abobakerMohsan\AuthTracker\QueryBuilders\ExpirableEloquentQueryBuilder;
 use abobakerMohsan\AuthTracker\Scopes\ExpirationScope;
 use Carbon\Carbon;
 use Illuminate\Support\Collection as BaseCollection;

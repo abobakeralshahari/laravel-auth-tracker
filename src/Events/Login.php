@@ -1,8 +1,8 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Events;
+namespace Alshahari\AuthTracker\Events;
 
-use abobakerMohsan\AuthTracker\RequestContext;
+use Alshahari\AuthTracker\RequestContext;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Queue\SerializesModels;
 

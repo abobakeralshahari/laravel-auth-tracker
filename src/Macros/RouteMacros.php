@@ -1,6 +1,6 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Macros;
+namespace Alshahari\AuthTracker\Macros;
 
 use Illuminate\Support\Facades\Route;
 

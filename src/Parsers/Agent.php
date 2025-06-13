@@ -1,8 +1,8 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Parsers;
+namespace Alshahari\AuthTracker\Parsers;
 
-use abobakerMohsan\AuthTracker\Interfaces\UserAgentParser;
+use Alshahari\AuthTracker\Interfaces\UserAgentParser;
 use Jenssegers\Agent\Agent as Parser;
 
 class Agent implements UserAgentParser

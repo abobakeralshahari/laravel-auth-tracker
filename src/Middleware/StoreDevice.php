@@ -1,7 +1,7 @@
 <?php
 
 //namespace Coreproc\Devices\Http\Middleware;
-namespace abobakerMohsan\AuthTracker\Middleware;
+namespace Alshahari\AuthTracker\Middleware;
 
 
 use abobakerMohsan\AuthTracker\Services\DeviceService;

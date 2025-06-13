@@ -4,7 +4,7 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "abobaker Mohsan",
+            "name": "abobaker .M Al-shahari",
             "email": "abobaker.m2017@gmail.com",
             "homepage": "https://github.com/abobakeralshahari",
             "role": "Developer"
@@ -24,18 +24,18 @@
     },
     "autoload": {
         "psr-4": {
-            "abobakerMohsan\\AuthTracker\\": "src"
+            "Alshahari\\AuthTracker\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "abobakerMohsan\\AuthTracker\\Tests\\": "tests"
+            "Alshahari\\AuthTracker\\Tests\\": "tests"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "abobakerMohsan\\AuthTracker\\AuthTrackerServiceProvider"
+                "Alshahari\\AuthTracker\\AuthTrackerServiceProvider"
             ]
         }
     }

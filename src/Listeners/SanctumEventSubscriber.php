@@ -1,10 +1,10 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Listeners;
+namespace Alshahari\AuthTracker\Listeners;
 
-use abobakerMohsan\AuthTracker\Events\PersonalAccessTokenCreated;
-use abobakerMohsan\AuthTracker\Factories\LoginFactory;
-use abobakerMohsan\AuthTracker\RequestContext;
+use Alshahari\AuthTracker\Events\PersonalAccessTokenCreated;
+use Alshahari\AuthTracker\Factories\LoginFactory;
+use Alshahari\AuthTracker\RequestContext;
 use Carbon\Carbon;
 
 class SanctumEventSubscriber
@@ -30,7 +30,7 @@ class SanctumEventSubscriber
             // Attach the login to the user and save it
             $user->logins()->save($login);
 
-            event(new \abobakerMohsan\AuthTracker\Events\Login($user, $context));
+            event(new \Alshahari\AuthTracker\Events\Login($user, $context));
         }
     }
 
@@ -42,7 +42,7 @@ class SanctumEventSubscriber
      */
     protected function tracked($user)
     {
-        return in_array('abobakerMohsan\AuthTracker\Traits\AuthTracking', class_uses($user));
+        return in_array('Alshahari\AuthTracker\Traits\AuthTracking', class_uses($user));
     }
 
     /**
@@ -53,8 +53,8 @@ class SanctumEventSubscriber
     public function subscribe($events)
     {
         $events->listen(
-            'abobakerMohsan\AuthTracker\Events\PersonalAccessTokenCreated',
-            'abobakerMohsan\AuthTracker\Listeners\SanctumEventSubscriber@handlePersonalAccessTokenCreation'
+            'alshahari\AuthTracker\Events\PersonalAccessTokenCreated',
+            'alshahari\AuthTracker\Listeners\SanctumEventSubscriber@handlePersonalAccessTokenCreation'
         );
     }
 }

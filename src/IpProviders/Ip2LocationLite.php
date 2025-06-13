@@ -1,6 +1,6 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\IpProviders;
+namespace Alshahari\AuthTracker\IpProviders;
 
 use abobakerMohsan\AuthTracker\Interfaces\IpProvider;
 use Illuminate\Support\Facades\DB;

@@ -1,9 +1,9 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Factories;
+namespace Alshahari\AuthTracker\Factories;
 
-use abobakerMohsan\AuthTracker\Parsers\Agent;
-use abobakerMohsan\AuthTracker\Parsers\WhichBrowser;
+use Alshahari\AuthTracker\Parsers\Agent;
+use Alshahari\AuthTracker\Parsers\WhichBrowser;
 
 class ParserFactory
 {

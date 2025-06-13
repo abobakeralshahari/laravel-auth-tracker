@@ -1,8 +1,8 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Traits;
+namespace Alshahari\AuthTracker\Traits;
 
-use abobakerMohsan\AuthTracker\Events\FailedApiCall;
+use Alshahari\AuthTracker\Events\FailedApiCall;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\TransferException;
 

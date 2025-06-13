@@ -1,7 +1,7 @@
 <?php
 
 
-namespace abobakerMohsan\AuthTracker\Services;
+namespace Alshahari\AuthTracker\Services;
 
 
 use Illuminate\Http\Request;

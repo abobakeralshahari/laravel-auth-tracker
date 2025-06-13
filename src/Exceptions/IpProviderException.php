@@ -1,6 +1,6 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Exceptions;
+namespace Alshahari\AuthTracker\Exceptions;
 
 use Exception;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Commands;
+namespace Alshahari\AuthTracker\Commands;
 
 use Illuminate\Console\Command;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Traits;
+namespace Alshahari\AuthTracker\Traits;
 
-use abobakerMohsan\AuthTracker\Models\Login;
+use Alshahari\AuthTracker\Models\Login;
 use Illuminate\Database\Eloquent\Builder;
 
 trait AuthTracking
@@ -12,7 +12,7 @@ trait AuthTracking
      */
     public function logins()
     {
-        return $this->morphMany('abobakerMohsan\AuthTracker\Models\Login', 'authenticatable');
+        return $this->morphMany('Alshahari\AuthTracker\Models\Login', 'authenticatable');
     }
 
     /**

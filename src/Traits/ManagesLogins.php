@@ -1,6 +1,6 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Traits;
+namespace Alshahari\AuthTracker\Traits;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;

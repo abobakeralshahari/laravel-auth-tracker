@@ -1,15 +1,15 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Models;
+namespace Alshahari\AuthTracker\Models;
 
-use abobakerMohsan\AuthTracker\EloquentQueryBuilder;
-use abobakerMohsan\AuthTracker\Traits\ManagesLogins;
+use Alshahari\AuthTracker\EloquentQueryBuilder;
+use Alshahari\AuthTracker\Traits\ManagesLogins;
 use Alajusticia\Expirable\Traits\Expirable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 //use Lab404\AuthChecker\Models\Device;
-use abobakerMohsan\AuthTracker\Models\Device;
+use Alshahari\AuthTracker\Models\Device;
 
 class Login extends Model
 {

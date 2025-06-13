@@ -1,10 +1,10 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Listeners;
+namespace Alshahari\AuthTracker\Listeners;
 
-use abobakerMohsan\AuthTracker\Factories\LoginFactory;
-use abobakerMohsan\AuthTracker\Models\Login;
-use abobakerMohsan\AuthTracker\RequestContext;
+use Alshahari\AuthTracker\Factories\LoginFactory;
+use Alshahari\AuthTracker\Models\Login;
+use Alshahari\AuthTracker\RequestContext;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\Login as LoginEvent;
 use Illuminate\Auth\Recaller;
@@ -53,7 +53,7 @@ class AuthEventSubscriber
                 // Update the remember token
                 $this->updateRememberToken($event->user, Str::random(60));
 
-                event(new \abobakerMohsan\AuthTracker\Events\Login($event->user, $context));
+                event(new \Alshahari\AuthTracker\Events\Login($event->user, $context));
             }
         }
     }
@@ -112,7 +112,7 @@ class AuthEventSubscriber
      */
     protected function tracked($user)
     {
-        return in_array('abobakerMohsan\AuthTracker\Traits\AuthTracking', class_uses($user));
+        return in_array('Alshahari\AuthTracker\Traits\AuthTracking', class_uses($user));
     }
 
     /**
@@ -124,12 +124,12 @@ class AuthEventSubscriber
     {
         $events->listen(
             'Illuminate\Auth\Events\Login',
-            'abobakerMohsan\AuthTracker\Listeners\AuthEventSubscriber@handleSuccessfulLogin'
+            'Alshahari\AuthTracker\Listeners\AuthEventSubscriber@handleSuccessfulLogin'
         );
 
         $events->listen(
             'Illuminate\Auth\Events\Logout',
-            'abobakerMohsan\AuthTracker\Listeners\AuthEventSubscriber@handleSuccessfulLogout'
+            'Alshahari\AuthTracker\Listeners\AuthEventSubscriber@handleSuccessfulLogout'
         );
     }
 }

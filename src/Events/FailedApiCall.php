@@ -1,6 +1,6 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Events;
+namespace Alshahari\AuthTracker\Events;
 
 use GuzzleHttp\Exception\TransferException;
 use Illuminate\Queue\SerializesModels;

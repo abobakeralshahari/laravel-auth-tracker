@@ -1,6 +1,6 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Events;
+namespace Alshahari\AuthTracker\Events;
 
 use Illuminate\Queue\SerializesModels;
 use Laravel\Sanctum\NewAccessToken;

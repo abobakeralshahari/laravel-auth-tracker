@@ -1,9 +1,9 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Listeners;
+namespace Alshahari\AuthTracker\Listeners;
 
-use abobakerMohsan\AuthTracker\Factories\LoginFactory;
-use abobakerMohsan\AuthTracker\RequestContext;
+use Alshahari\AuthTracker\Factories\LoginFactory;
+use Alshahari\AuthTracker\RequestContext;
 use Carbon\Carbon;
 use Laravel\Passport\Events\AccessTokenCreated;
 use Laravel\Passport\Token;
@@ -42,7 +42,7 @@ class PassportEventSubscriber
             }
 
             if (request()->input('grant_type') !== 'refresh_token') {
-                event(new \abobakerMohsan\AuthTracker\Events\Login($user, $context));
+                event(new \Alshahari\AuthTracker\Events\Login($user, $context));
             }
         }
 
@@ -70,7 +70,7 @@ class PassportEventSubscriber
     protected function tracked($user)
     {
         if ($user) {
-            return in_array('abobakerMohsan\AuthTracker\Traits\AuthTracking', class_uses($user));
+            return in_array('Alshahari\AuthTracker\Traits\AuthTracking', class_uses($user));
         }
         return false;
     }
@@ -85,7 +85,7 @@ class PassportEventSubscriber
 
         $events->listen(
             'Laravel\Passport\Events\AccessTokenCreated',
-            'abobakerMohsan\AuthTracker\Listeners\PassportEventSubscriber@handleAccessTokenCreation'
+            'Alshahari\AuthTracker\Listeners\PassportEventSubscriber@handleAccessTokenCreation'
         );
     }
 }

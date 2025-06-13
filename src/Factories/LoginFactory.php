@@ -1,10 +1,10 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Factories;
+namespace Alshahari\AuthTracker\Factories;
 
-use abobakerMohsan\AuthTracker\Events\PersonalAccessTokenCreated;
-use abobakerMohsan\AuthTracker\Models\Login;
-use abobakerMohsan\AuthTracker\RequestContext;
+use Alshahari\AuthTracker\Events\PersonalAccessTokenCreated;
+use Alshahari\AuthTracker\Models\Login;
+use alshahari\AuthTracker\RequestContext;
 use Illuminate\Auth\Events\Login as LoginEvent;
 use Laravel\Passport\Events\AccessTokenCreated;
 

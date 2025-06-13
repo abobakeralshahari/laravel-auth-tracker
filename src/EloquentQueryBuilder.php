@@ -1,8 +1,8 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker;
+namespace Alshahari\AuthTracker;
 
-use abobakerMohsan\AuthTracker\Traits\ManagesLogins;
+use Alshahari\AuthTracker\Traits\ManagesLogins;
 use Illuminate\Database\Eloquent\Builder;
 
 class EloquentQueryBuilder extends Builder

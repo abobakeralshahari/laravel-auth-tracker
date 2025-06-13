@@ -1,10 +1,10 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker;
+namespace Alshahari\AuthTracker;
 
-use abobakerMohsan\AuthTracker\Factories\IpProviderFactory;
-use abobakerMohsan\AuthTracker\Macros\RouteMacros;
-use abobakerMohsan\AuthTracker\Middleware\StoreDevice;
+use Alshahari\AuthTracker\Factories\IpProviderFactory;
+use Alshahari\AuthTracker\Macros\RouteMacros;
+use Alshahari\AuthTracker\Middleware\StoreDevice;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
@@ -55,9 +55,9 @@ class AuthTrackerServiceProvider extends ServiceProvider
         });
 
         // Register event subscribers
-        Event::subscribe('abobakerMohsan\AuthTracker\Listeners\PassportEventSubscriber');
-        Event::subscribe('abobakerMohsan\AuthTracker\Listeners\AuthEventSubscriber');
-        Event::subscribe('abobakerMohsan\AuthTracker\Listeners\SanctumEventSubscriber');
+        Event::subscribe('Alshahari\AuthTracker\Listeners\PassportEventSubscriber');
+        Event::subscribe('Alshahari\AuthTracker\Listeners\AuthEventSubscriber');
+        Event::subscribe('Alshahari\AuthTracker\Listeners\SanctumEventSubscriber');
 
 
 

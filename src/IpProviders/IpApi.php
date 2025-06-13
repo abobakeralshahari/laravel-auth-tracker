@@ -1,6 +1,6 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\IpProviders;
+namespace alshahari\AuthTracker\IpProviders;
 
 use abobakerMohsan\AuthTracker\Interfaces\IpProvider;
 use abobakerMohsan\AuthTracker\Traits\MakesApiCalls;

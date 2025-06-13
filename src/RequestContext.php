@@ -1,14 +1,14 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker;
+namespace Alshahari\AuthTracker;
 
-use abobakerMohsan\AuthTracker\Factories\DeviceFactory;
-use abobakerMohsan\AuthTracker\Factories\IpProviderFactory;
-use abobakerMohsan\AuthTracker\Factories\ParserFactory;
-use abobakerMohsan\AuthTracker\Interfaces\IpProvider;
-use abobakerMohsan\AuthTracker\Interfaces\UserAgentParser;
-use abobakerMohsan\AuthTracker\Models\Device;
-use abobakerMohsan\AuthTracker\Services\DeviceService;
+use Alshahari\AuthTracker\Factories\DeviceFactory;
+use Alshahari\AuthTracker\Factories\IpProviderFactory;
+use Alshahari\AuthTracker\Factories\ParserFactory;
+use Alshahari\AuthTracker\Interfaces\IpProvider;
+use Alshahari\AuthTracker\Interfaces\UserAgentParser;
+use Alshahari\AuthTracker\Models\Device;
+use Alshahari\AuthTracker\Services\DeviceService;
 use Illuminate\Support\Facades\Log;
 use Jenssegers\Agent\Agent;
 

@@ -63,7 +63,7 @@ composer require alshahari/laravel-auth-tracker
 Publish the configuration file (`config/auth_tracker.php`) with:
 
 ```bash
-php artisan vendor:publish --provider="abobakerMohsan\AuthTracker\AuthTrackerServiceProvider" --tag="config"
+php artisan vendor:publish --provider="Alshahari\AuthTracker\AuthTrackerServiceProvider" --tag="config"
 ```
 
 ### Create the logins table
@@ -79,11 +79,11 @@ php artisan migrate
 
 ### Prepare your authenticatable models
 
-In order to track the logins of your app's users, add the `abobakerMohsan\AuthTracker\Traits\AuthTracking` trait
+In order to track the logins of your app's users, add the `Alshahari\AuthTracker\Traits\AuthTracking` trait
 on each of your authenticatable models that you want to track:
 
 ```php
-use abobakerMohsan\AuthTracker\Traits\AuthTracking;
+use Alshahari\AuthTracker\Traits\AuthTracking;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 // ...
 
@@ -98,7 +98,7 @@ class User extends Authenticatable
 ### Prepare your LoginController
 
 Replace the `Illuminate\Foundation\Auth\AuthenticatesUsers` trait of your `App\Http\Controllers\Auth\LoginController`
-by the `abobakerMohsan\AuthTracker\Traits\AuthenticatesWithTracking` trait provided by this package.
+by the `Alshahari\AuthTracker\Traits\AuthenticatesWithTracking` trait provided by this package.
 
 This trait overrides the `sendLoginResponse` method by removing the session regeneration.
 But don't worry, there's no security issue here.
@@ -161,14 +161,14 @@ an API token is created.
 If you are issuing API tokens with Laravel Sanctum and want to enable auth tracking,
 you will have to dispatch an event provided by the Auth Tracker.
 
-Dispatch the `abobakerMohsan\AuthTracker\Events\PersonalAccessTokenCreated` event passing the personal access token
+Dispatch the `Alshahari\AuthTracker\Events\PersonalAccessTokenCreated` event passing the personal access token
 newly created by the `createToken` method of the Laravel Sanctum trait.
 
 Based on the [example](https://laravel.com/docs/7.x/sanctum#issuing-mobile-api-tokens) provided by
 the Laravel Sanctum documentation, it might look like this:
 
 ```php
-use abobakerMohsan\AuthTracker\Events\PersonalAccessTokenCreated;
+use Alshahari\AuthTracker\Events\PersonalAccessTokenCreated;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -279,7 +279,7 @@ Route::prefix($prefix)->group(function () {
 
 ### Login
 
-On a new login, you can listen to the event `abobakerMohsan\AuthTracker\Events\Login`.
+On a new login, you can listen to the event `Alshahari\AuthTracker\Events\Login`.
 It receives a `RequestContext` object containing all the informations collected on the request, accessible on the event
 with the `context` property.
 
@@ -341,16 +341,16 @@ Here are the steps to enable and use it:
 ### Custom provider
 
 You can add your own providers by creating a class that implements the
-`abobakerMohsan\AuthTracker\Interfaces\IpProvider` interface and use the
-`abobakerMohsan\AuthTracker\Traits\MakesApiCalls` trait.
+`Alshahari\AuthTracker\Interfaces\IpProvider` interface and use the
+`Alshahari\AuthTracker\Traits\MakesApiCalls` trait.
 
 Your custom class have to be registered in the `custom_providers` array of the configuration file.
 
 Let's see an example of an IP lookup provider with the built-in `IpApi` provider:
 
 ```php
-use abobakerMohsan\AuthTracker\Interfaces\IpProvider;
-use abobakerMohsan\AuthTracker\Traits\MakesApiCalls;
+use Alshahari\AuthTracker\Interfaces\IpProvider;
+use Alshahari\AuthTracker\Traits\MakesApiCalls;
 use GuzzleHttp\Psr7\Request;
 
 class IpApi implements IpProvider

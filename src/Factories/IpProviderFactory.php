@@ -1,12 +1,12 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Factories;
+namespace Alshahari\AuthTracker\Factories;
 
-use abobakerMohsan\AuthTracker\Exceptions\CustomIpProviderException;
-use abobakerMohsan\AuthTracker\Exceptions\IpProviderException;
-use abobakerMohsan\AuthTracker\Interfaces\IpProvider;
-use abobakerMohsan\AuthTracker\IpProviders\Ip2LocationLite;
-use abobakerMohsan\AuthTracker\IpProviders\IpApi;
+use Alshahari\AuthTracker\Exceptions\CustomIpProviderException;
+use Alshahari\AuthTracker\Exceptions\IpProviderException;
+use Alshahari\AuthTracker\Interfaces\IpProvider;
+use Alshahari\AuthTracker\IpProviders\Ip2LocationLite;
+use alshahari\AuthTracker\IpProviders\IpApi;
 use Illuminate\Support\Facades\App;
 
 class IpProviderFactory

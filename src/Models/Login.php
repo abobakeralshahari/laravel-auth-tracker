@@ -8,7 +8,6 @@ use Alshahari\AuthTracker\Traits\Expirable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-//use Lab404\AuthChecker\Models\Device;
 use Alshahari\AuthTracker\Models\Device;
 
 class Login extends Model

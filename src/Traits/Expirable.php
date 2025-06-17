@@ -1,9 +1,9 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Traits;
+namespace Alshahari\AuthTracker\Traits;
 
-use abobakerMohsan\AuthTracker\QueryBuilders\ExpirableEloquentQueryBuilder;
-use abobakerMohsan\AuthTracker\Scopes\ExpirationScope;
+use Alshahari\AuthTracker\QueryBuilders\ExpirableEloquentQueryBuilder;
+use Alshahari\AuthTracker\Scopes\ExpirationScope;
 use Carbon\Carbon;
 use Illuminate\Support\Collection as BaseCollection;
 

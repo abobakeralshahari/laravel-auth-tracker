@@ -1,6 +1,6 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Tests;
+namespace Alshahari\AuthTracker\Tests;
 
 use Illuminate\Support\Facades\Auth;
 

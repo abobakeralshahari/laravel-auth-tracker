@@ -1,9 +1,8 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Tests;
+namespace Alshahari\AuthTracker\Tests;
 
-use abobakerMohsan\AuthTracker\AuthTrackerServiceProvider;
-use Alajusticia\Expirable\ExpirableServiceProvider;
+use Alshahari\AuthTracker\AuthTrackerServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -44,7 +43,6 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     {
         return [
             AuthTrackerServiceProvider::class,
-            ExpirableServiceProvider::class,
             PassportServiceProvider::class,
             SanctumServiceProvider::class,
         ];

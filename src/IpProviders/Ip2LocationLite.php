@@ -2,7 +2,7 @@
 
 namespace Alshahari\AuthTracker\IpProviders;
 
-use abobakerMohsan\AuthTracker\Interfaces\IpProvider;
+use Alshahari\AuthTracker\Interfaces\IpProvider;
 use Illuminate\Support\Facades\DB;
 
 class Ip2LocationLite implements IpProvider

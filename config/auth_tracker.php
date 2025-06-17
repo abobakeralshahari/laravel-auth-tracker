@@ -32,7 +32,7 @@ return [
    * The class name of the devices model.
    *
    */
-    'device_model' => abobakerMohsan\AuthTracker\Models\Device::class,
+    'device_model' => Alshahari\AuthTracker\Models\Device::class,
     
     
     /*
@@ -95,7 +95,7 @@ return [
         | to the provider's API.
         |
         | If the request takes more time, the IP address lookup will be ignored
-        | and the abobakerMohsan\AuthTracker\Events\FailedApiCall will be
+        | and the Alshahari\AuthTracker\Events\FailedApiCall will be
         | dispatched, receiving the attribute $exception containing the
         | GuzzleHttp\Exception\TransferException.
         |

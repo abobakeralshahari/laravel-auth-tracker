@@ -4,7 +4,7 @@ namespace Alshahari\AuthTracker\Models;
 
 use Alshahari\AuthTracker\EloquentQueryBuilder;
 use Alshahari\AuthTracker\Traits\ManagesLogins;
-use Alajusticia\Expirable\Traits\Expirable;
+use Alshahari\AuthTracker\Traits\Expirable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;

@@ -2,7 +2,7 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
-use abobakerMohsan\AuthTracker\Tests\PassportUser;
+use Alshahari\AuthTracker\Tests\PassportUser;
 use Faker\Generator as Faker;
 use Illuminate\Support\Str;
 

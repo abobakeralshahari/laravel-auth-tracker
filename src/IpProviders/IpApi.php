@@ -2,8 +2,8 @@
 
 namespace alshahari\AuthTracker\IpProviders;
 
-use abobakerMohsan\AuthTracker\Interfaces\IpProvider;
-use abobakerMohsan\AuthTracker\Traits\MakesApiCalls;
+use Alshahari\AuthTracker\Interfaces\IpProvider;
+use Alshahari\AuthTracker\Traits\MakesApiCalls;
 use GuzzleHttp\Psr7\Request;
 
 class IpApi implements IpProvider

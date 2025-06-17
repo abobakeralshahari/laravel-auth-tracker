@@ -1,8 +1,8 @@
 <?php
 
-namespace abobakerMohsan\AuthTracker\Tests;
+namespace Alshahari\AuthTracker\Tests;
 
-use abobakerMohsan\AuthTracker\Traits\AuthTracking;
+use Alshahari\AuthTracker\Traits\AuthTracking;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 

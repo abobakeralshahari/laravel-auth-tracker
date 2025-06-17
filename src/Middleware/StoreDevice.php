@@ -1,10 +1,10 @@
 <?php
 
-//namespace Coreproc\Devices\Http\Middleware;
+
 namespace Alshahari\AuthTracker\Middleware;
 
 
-use abobakerMohsan\AuthTracker\Services\DeviceService;
+use Alshahari\AuthTracker\Services\DeviceService;
 use Closure;
 use Illuminate\Validation\UnauthorizedException;
 use Jenssegers\Agent\Agent;

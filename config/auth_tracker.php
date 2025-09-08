@@ -27,14 +27,136 @@ return [
 
     'remember_lifetime' => 365, // 1 year
 
+    /*
+    |--------------------------------------------------------------------------
+    | Device Model
+    |--------------------------------------------------------------------------
+    |
+    | The class name of the devices model.
+    |
+    */
+
+    'device_model' => Alshahari\AuthTracker\Models\Device::class,
 
     /*
-   * The class name of the devices model.
-   *
-   */
-    'device_model' => Alshahari\AuthTracker\Models\Device::class,
-    
-    
+    |--------------------------------------------------------------------------
+    | Device Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for device management and tracking.
+    |
+    */
+
+    'device' => [
+        'required_attributes' => [
+            'udid',
+            'os',
+            'manufacturer',
+            'model'
+        ],
+        
+        'optional_attributes' => [
+            'os_version',
+            'fcm_token',
+            'app_version',
+            'app_type',
+            'tenant',
+            'user_agent',
+            'screen_resolution',
+            'timezone',
+            'language',
+            'battery_level',
+            'network_type',
+            'carrier'
+        ],
+        
+        'valid_os' => [
+            'android',
+            'ios',
+            'windows',
+            'macos',
+            'linux',
+            'web'
+        ],
+        
+        'auto_detect' => true,
+        'trust_new_devices' => false,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Security Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Security settings for device tokens, API keys, and rate limiting.
+    |
+    */
+
+    'security' => [
+        'token_lifetime_days' => 30,
+        'api_key_lifetime_days' => 90,
+        'token_refresh_interval' => 3600, // 1 hour in seconds
+        
+        'rate_limits' => [
+            'login' => 10, // 10 login attempts per hour
+            'token_refresh' => 5, // 5 token refreshes per hour
+            'api_request' => 100, // 100 API requests per hour
+        ],
+        
+        'require_client_id' => true,
+        'require_device_token' => true,
+        'auto_revoke_expired_tokens' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Notifications Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for sending notifications about authentication events.
+    |
+    */
+
+    'notifications' => [
+        'enabled' => true,
+        
+        'types' => [
+            'login' => true,
+            'new_device' => true,
+            'suspicious_login' => true,
+            'device_registration' => true,
+            'general_login' => false,
+        ],
+        
+        'channels' => [
+            'email' => true,
+            'push' => true,
+            'database' => true,
+            'webhook' => false,
+        ],
+        
+        'email_classes' => [
+            'new_device' => \App\Notifications\NewDeviceLogin::class,
+            'suspicious_login' => \App\Notifications\SuspiciousLogin::class,
+            'device_registration' => \App\Notifications\DeviceRegistered::class,
+        ],
+        
+        'notification_classes' => [
+            'new_device' => \App\Notifications\NewDeviceLoginNotification::class,
+            'suspicious_login' => \App\Notifications\SuspiciousLoginNotification::class,
+            'device_registration' => \App\Notifications\DeviceRegisteredNotification::class,
+        ],
+        
+        'push_messages' => [
+            'new_device' => 'New device login detected',
+            'suspicious_login' => 'Suspicious login activity detected',
+            'device_registration' => 'New device registered',
+            'general_login' => 'Login successful',
+        ],
+        
+        'webhook_url' => null,
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Parser
@@ -67,86 +189,42 @@ return [
     */
 
     'ip_lookup' => [
-
-        /*
-        |--------------------------------------------------------------------------
-        | Provider
-        |--------------------------------------------------------------------------
-        |
-        | If you want to enable the IP address lookup, choose a supported
-        | IP address lookup provider.
-        |
-        | Supported values:
-        | - 'ip2location-lite' (see https://lite.ip2location.com/database/ip-country-region-city)
-        | - 'ip-api' (see https://members.ip-api.com)
-        | - false (to disable the IP address lookup feature)
-        | - any other custom name declared as a key of the custom_providers array
-        |
-        */
-
         'provider' => false,
-
-        /*
-        |--------------------------------------------------------------------------
-        | Timeout
-        |--------------------------------------------------------------------------
-        |
-        | Float describing the number of seconds to wait while trying to connect
-        | to the provider's API.
-        |
-        | If the request takes more time, the IP address lookup will be ignored
-        | and the Alshahari\AuthTracker\Events\FailedApiCall will be
-        | dispatched, receiving the attribute $exception containing the
-        | GuzzleHttp\Exception\TransferException.
-        |
-        | Use 0 to wait indefinitely.
-        |
-        */
-
         'timeout' => 1.0,
-
-        /*
-        |--------------------------------------------------------------------------
-        | Environments
-        |--------------------------------------------------------------------------
-        |
-        | Indicate here an array of environnments for which you want to enable
-        | the IP address lookup.
-        |
-        */
-
-        'environments' => [
-            'production',
-        ],
-
-        /*
-        |--------------------------------------------------------------------------
-        | Custom Providers
-        |--------------------------------------------------------------------------
-        |
-        | You can create your own custom providers for the IP address lookup feature.
-        | See in the README file how to create an IP provider class and declare it
-        | in the array below.
-        |
-        | Format: 'name_of_your_provider' => ProviderClassName::class
-        |
-        */
-
+        'environments' => ['production'],
         'custom_providers' => [],
-
-        /*
-        |--------------------------------------------------------------------------
-        | Ip2Location
-        |--------------------------------------------------------------------------
-        |
-        | If you are using 'ip2location-lite' provider, here you may change the
-        | name of the tables for IPv4 and IPv6.
-        |
-        */
-
         'ip2location' => [
             'ipv4_table' => 'ip2location_db3',
             'ipv6_table' => 'ip2location_db3_ipv6',
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Service Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for the service layer and middleware.
+    |
+    */
+
+    'service' => [
+        'auto_track_logins' => true,
+        'auto_register_devices' => true,
+        'middleware_priority' => 100,
+        'log_events' => true,
+        'cleanup_old_logs' => true,
+        'cleanup_after_days' => 90,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Database Connection
+    |--------------------------------------------------------------------------
+    |
+    | Specify the database connection to use for auth tracker tables.
+    |
+    */
+
+    'connection' => null,
 ];

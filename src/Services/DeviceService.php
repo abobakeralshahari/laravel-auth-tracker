@@ -1,243 +1,432 @@
 <?php
 
-
 namespace Alshahari\AuthTracker\Services;
 
-
+use Alshahari\AuthTracker\Models\Device;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Jenssegers\Agent\Agent;
 
-
+/**
+ * Enhanced Device Service with Dynamic Configuration
+ * 
+ * This service handles device registration, management, and security
+ * with configurable device attributes and validation rules.
+ */
 class DeviceService
 {
-
-    protected $req;
+    protected $request;
     protected $agent;
     protected $deviceUdid;
-
-
-
-    protected $agetis = [
-        'udid' => null,
-        'os' => null,
-        'os_version' => null,
-        'manufacturer' => null,
-        'model' => null,
-        'fcm_token' => null,
-        'app_version' => null,
-        'app_type' => null,
-        'tenant' => null,
-    ];
+    protected $deviceAttributes = [];
+    protected $requiredAttributes = [];
+    protected $optionalAttributes = [];
 
     public function __construct()
     {
-        $this->req = \request();
+        $this->request = request();
         $this->agent = new Agent();
-        $this->setAgents();
+        $this->initializeConfiguration();
+        $this->extractDeviceAttributes();
     }
 
-    public function setAgents()
+    /**
+     * Initialize device configuration from config
+     */
+    protected function initializeConfiguration(): void
     {
+        $config = config('auth_tracker.device', []);
+        
+        // Required attributes (must be present)
+        $this->requiredAttributes = $config['required_attributes'] ?? [
+            'udid',
+            'os',
+            'manufacturer',
+            'model'
+        ];
+        
+        // Optional attributes (can be empty)
+        $this->optionalAttributes = $config['optional_attributes'] ?? [
+            'os_version',
+            'fcm_token',
+            'app_version',
+            'app_type',
+            'tenant',
+            'user_agent',
+            'screen_resolution',
+            'timezone',
+            'language',
+            'battery_level',
+            'network_type',
+            'carrier'
+        ];
+        
+        // All possible attributes
+        $this->deviceAttributes = array_merge($this->requiredAttributes, $this->optionalAttributes);
+    }
 
-        if (request()->hasHeader('x-device-manufacturer')) {
-            $this->agetis['manufacturer'] = request()->header('x-device-manufacturer', '-');
-        } else {
-            $val = $this->agent->device();
-            if ($val == 'WebKit') {
-                $this->agetis['manufacturer'] = $this->agent->deviceType();
-            } else {
-                $this->agetis['manufacturer'] = $val;
+    /**
+     * Extract device attributes from request
+     */
+    protected function extractDeviceAttributes(): void
+    {
+        $attributes = [];
+        
+        // Extract from headers
+        foreach ($this->deviceAttributes as $attribute) {
+            $headerKey = 'x-device-' . str_replace('_', '-', $attribute);
+            $value = $this->request->header($headerKey);
+            
+            if ($value !== null) {
+                $attributes[$attribute] = $value;
             }
         }
-        if (request()->hasHeader('x-device-model')) {
-            $this->agetis['model'] = request()->header('x-device-model', '-');
-        } else {
-            if ($this->agent->browser()) {
-                $this->agetis['model'] = $this->agent->browser();
-            }
-        }
-        if (request()->hasHeader('x-device-os')) {
-            $this->agetis['os'] = request()->header('x-device-os', '-');
-            $this->agetis['os_version'] = request()->header('x-device-os-version', '-');
-        } else {
-            if ($platform = $this->agent->platform()) {
-                $this->agetis['os'] = $this->agent->platform();
-                $version = $this->agent->version($platform);
-                if ($version) {
-                    $this->agetis['os_version'] = $version;
+        
+        // Extract from cookies as fallback
+        foreach ($this->deviceAttributes as $attribute) {
+            if (!isset($attributes[$attribute])) {
+                $cookieKey = 'device_' . $attribute;
+                $value = $this->request->cookie($cookieKey);
+                
+                if ($value !== null) {
+                    $attributes[$attribute] = $value;
                 }
             }
         }
+        
+        // Auto-detect missing attributes
+        $this->autoDetectAttributes($attributes);
+        
+        // Generate UDID if not provided
+        if (empty($attributes['udid'])) {
+            $attributes['udid'] = $this->generateDeviceUdid();
+        }
+        
+        $this->deviceAttributes = $attributes;
+    }
 
-
-        if (request()->hasHeader('x-device-udid')) {
-            $this->deviceUdid = request()->header('x-device-udid', $this->generateDeviceUdid());
-        } else {
-            if ($this->req->cookie('device_uuid')) {
-                $dd_old = $this->req->cookie('device_uuid');
-                $dd_data = $this->hasDeviceId($dd_old);
-                if ($dd_data != null) {
-                    $this->deviceUdid = $dd_old;
-                } else {
-                    $this->deviceUdid = $this->generateDeviceUdid();
-                }
+    /**
+     * Auto-detect device attributes using User Agent
+     */
+    protected function autoDetectAttributes(array &$attributes): void
+    {
+        // OS detection
+        if (empty($attributes['os'])) {
+            $platform = $this->agent->platform();
+            if ($platform) {
+                $attributes['os'] = $platform;
+                $attributes['os_version'] = $this->agent->version($platform) ?: $attributes['os_version'] ?? null;
+            }
+        }
+        
+        // Device detection
+        if (empty($attributes['manufacturer'])) {
+            $device = $this->agent->device();
+            if ($device && $device !== 'WebKit') {
+                $attributes['manufacturer'] = $device;
             } else {
-                $this->deviceUdid = $this->generateDeviceUdid();
+                $attributes['manufacturer'] = $this->agent->deviceType() ?: 'Unknown';
             }
         }
-        $this->agetis['udid'] = $this->deviceUdid;
-        if (request()->hasHeader('x-device-fcm-token')) {
-            $this->agetis['fcm_token'] = request()->header('x-device-fcm-token', null);
+        
+        if (empty($attributes['model'])) {
+            $browser = $this->agent->browser();
+            if ($browser) {
+                $attributes['model'] = $browser;
+            }
+        }
+        
+        // App type detection
+        if (empty($attributes['app_type'])) {
+            $attributes['app_type'] = $this->detectAppType();
+        }
+        
+        // User agent
+        if (empty($attributes['user_agent'])) {
+            $attributes['user_agent'] = $this->agent->getUserAgent();
+        }
+    }
+
+    /**
+     * Detect application type
+     */
+    protected function detectAppType(): string
+    {
+        if ($this->agent->isDesktop()) {
+            return 'web_pc';
+        }
+        
+        if ($this->agent->isMobile()) {
+            return 'web_mobile';
+        }
+        
+        if ($this->agent->isTablet()) {
+            return 'web_tablet';
+        }
+        
+        return 'other';
+    }
+
+    /**
+     * Get or create device
+     */
+    public function getOrCreateDevice(array $context = []): Device
+    {
+        $udid = $this->deviceAttributes['udid'] ?? $this->generateDeviceUdid();
+        
+        // Check if device exists
+        $device = $this->findDeviceByUdid($udid);
+        
+        if (!$device) {
+            $device = $this->createDevice($context);
         } else {
-            if ($this->req->cookie('notifyToken')) {
-                $this->agetis['fcm_token'] = $this->req->cookie('notifyToken');
-            } elseif ($this->req->cookie('fcmToken')) {
-                $this->agetis['fcm_token'] = $this->req->cookie('fcmToken');
-            }
+            $device = $this->updateDevice($device, $context);
         }
-
-
-        if (request()->hasHeader('x-device-app-type')) {
-            $this->agetis['app_type'] = request()->header('x-device-app-type', 'other');
-        } else {
-            $agent = new Agent();
-            $login_from='other';
-            if ($agent->isDesktop()) {
-                $login_from = 'web_pc';
-            }
-            if ($agent->isMobile()) {
-                $login_from = 'web_mobile';
-            }
-            if ($agent->isTablet()) {
-                $login_from = 'web_tablet';
-            }
-            $this->agetis['app_type'] =$login_from;
-        }
-
-        if (request()->hasHeader('x-device-app-version')) {
-            $this->agetis['app_version'] = request()->header('x-device-app-version', null);
-        } else {
-            if ($this->req->cookie('app_version')) {
-                $this->agetis['app_version'] = $this->req->cookie('app_version');
-            }
-        }
-
-        if (tenant()) {
-            $this->agetis['tenant'] = tenant()->id;
-        } else {
-            if (request()->hasHeader('country-code')) {
-                $this->agetis['tenant'] = request()->header('country-code', null);
-            }
-        }
-
-
-    }
-
-
-    public function setHeader()
-    {
-
-
-        $manufacturer = request()->header('x-device-manufacturer', $this->agetis['manufacturer']);
-        $model = request()->header('x-device-model', $this->agetis['model']);
-        $os = request()->header('x-device-os', $this->agetis['os']);
-        $osV = request()->header('x-device-os-version', $this->agetis['os_version']);
-        $udid = request()->header('x-device-udid', $this->deviceUdid);
-        $fcmToken = request()->header('x-device-fcm-token', $this->agetis['fcm_token']);
-
-        $appVersion = request()->header('x-device-app-version', $this->agetis['app_version']);
-        $appType = request()->header('x-device-app-type', $this->agetis['app_type']);
-
-
-        \request()->headers->set('x-device-manufacturer', $manufacturer);
-        \request()->headers->set('x-device-model', $model);
-        \request()->headers->set('x-device-os', $os);
-        \request()->headers->set('x-device-os-version', $osV);
-        \request()->headers->set('x-device-udid', $udid);
-        // \request()->headers->set('X-Device-UDID',$this->deviceUdid);
-        \request()->headers->set('x-device-fcm-token', $fcmToken);
-
-        \request()->headers->set('x-device-app-version', $appVersion);
-        \request()->headers->set('x-device-app-type', $appType);
-    }
-
-
-    public function getAgents()
-    {
-
-        return $this->agetis;
-    }
-
-
-    public function setAgentOne($key, $val)
-    {
-
-        if (array_key_exists($key, $this->agetis)) {
-            $this->agetis[$key] = $val;
-        }
-        return false;
-    }
-
-    public function getAgentOne($val)
-    {
-
-        if (array_key_exists($val, $this->agetis)) {
-
-            return $this->agetis[$val];
-        }
-        return false;
-    }
-
-    public function generateDeviceUdid()
-    {
-        $u_id = uniqid('');
-        $time = time();
-        $string = $this->agent->getUserAgent();
-        $v = preg_replace('/[^0-9]/', '', $string);
-        $d_id = $time . $v . $u_id;
-        $deviceUdid = $d_id;
-
-        return $deviceUdid;
-    }
-
-    public function getDeviceId()
-    {
-
-        return $this->deviceUdid;
-    }
-
-    public function hasDeviceId($dev_id)
-    {
-        $device = app(config('auth_tracker.device_model'))->query()->where([
-
-            'udid' => $dev_id,
-        ])->first();
-
+        
         return $device;
     }
 
-    public function saveDevice()
+    /**
+     * Create new device
+     */
+    public function createDevice(array $context = []): Device
     {
-
-        $device = app(config('auth_tracker.device_model'))->query()->updateOrCreate([
-            'udid' => $this->deviceUdid,
-        ], $this->agetis);
-
-        $device->save();
-
+        $deviceData = array_merge($this->deviceAttributes, $context);
+        
+        // Validate required attributes
+        $this->validateDeviceAttributes($deviceData);
+        
+        // Generate device token for security
+        $deviceData['device_token'] = $this->generateDeviceToken();
+        $deviceData['client_id'] = $this->generateClientId();
+        $deviceData['is_active'] = true;
+        $deviceData['last_seen_at'] = now();
+        
+        $device = Device::create($deviceData);
+        
+        Log::info('Device created', [
+            'device_id' => $device->id,
+            'udid' => $device->udid,
+            'client_id' => $device->client_id
+        ]);
+        
         return $device;
     }
 
+    /**
+     * Update existing device
+     */
+    public function updateDevice(Device $device, array $context = []): Device
+    {
+        $updateData = array_merge($this->deviceAttributes, $context);
+        
+        // Update only changed attributes
+        $changedAttributes = [];
+        foreach ($updateData as $key => $value) {
+            if ($device->$key !== $value) {
+                $changedAttributes[$key] = $value;
+            }
+        }
+        
+        if (!empty($changedAttributes)) {
+            $changedAttributes['last_seen_at'] = now();
+            $device->update($changedAttributes);
+            
+            Log::info('Device updated', [
+                'device_id' => $device->id,
+                'udid' => $device->udid,
+                'updated_attributes' => array_keys($changedAttributes)
+            ]);
+        }
+        
+        return $device;
+    }
+
+    /**
+     * Find device by UDID
+     */
+    public function findDeviceByUdid(string $udid): ?Device
+    {
+        return Device::where('udid', $udid)->first();
+    }
+
+    /**
+     * Find device by client ID
+     */
+    public function findDeviceByClientId(string $clientId): ?Device
+    {
+        return Device::where('client_id', $clientId)->first();
+    }
+
+    /**
+     * Validate device attributes
+     */
+    protected function validateDeviceAttributes(array $attributes): void
+    {
+        foreach ($this->requiredAttributes as $attribute) {
+            if (empty($attributes[$attribute])) {
+                throw new \InvalidArgumentException("Required device attribute '{$attribute}' is missing");
+            }
+        }
+        
+        // Validate UDID format
+        if (isset($attributes['udid']) && !$this->isValidUdid($attributes['udid'])) {
+            throw new \InvalidArgumentException("Invalid UDID format");
+        }
+        
+        // Validate OS
+        if (isset($attributes['os']) && !$this->isValidOs($attributes['os'])) {
+            throw new \InvalidArgumentException("Invalid OS: {$attributes['os']}");
+        }
+    }
+
+    /**
+     * Check if UDID is valid
+     */
+    protected function isValidUdid(string $udid): bool
+    {
+        return strlen($udid) >= 10 && strlen($udid) <= 100;
+    }
+
+    /**
+     * Check if OS is valid
+     */
+    protected function isValidOs(string $os): bool
+    {
+        $validOs = config('auth_tracker.device.valid_os', [
+            'android', 'ios', 'windows', 'macos', 'linux', 'web'
+        ]);
+        
+        return in_array(strtolower($os), $validOs);
+    }
+
+    /**
+     * Generate device UDID
+     */
+    public function generateDeviceUdid(): string
+    {
+        $uniqueId = uniqid('', true);
+        $timestamp = time();
+        $userAgent = $this->agent->getUserAgent();
+        $numericPart = preg_replace('/[^0-9]/', '', $userAgent);
+        
+        return $timestamp . $numericPart . $uniqueId;
+    }
+
+    /**
+     * Generate device token for security
+     */
+    public function generateDeviceToken(): string
+    {
+        return Hash::make(Str::random(60) . time());
+    }
+
+    /**
+     * Generate client ID
+     */
+    public function generateClientId(): string
+    {
+        return 'client_' . Str::random(32);
+    }
+
+    /**
+     * Refresh device token
+     */
+    public function refreshDeviceToken(Device $device): string
+    {
+        $newToken = $this->generateDeviceToken();
+        $device->update([
+            'device_token' => $newToken,
+            'token_refreshed_at' => now()
+        ]);
+        
+        Log::info('Device token refreshed', [
+            'device_id' => $device->id,
+            'udid' => $device->udid
+        ]);
+        
+        return $newToken;
+    }
+
+    /**
+     * Validate device token
+     */
+    public function validateDeviceToken(Device $device, string $token): bool
+    {
+        return Hash::check($token, $device->device_token);
+    }
+
+    /**
+     * Get device attributes
+     */
+    public function getDeviceAttributes(): array
+    {
+        return $this->deviceAttributes;
+    }
+
+    /**
+     * Set device attribute
+     */
+    public function setDeviceAttribute(string $key, $value): void
+    {
+        if (in_array($key, $this->deviceAttributes)) {
+            $this->deviceAttributes[$key] = $value;
+        }
+    }
+
+    /**
+     * Get device attribute
+     */
+    public function getDeviceAttribute(string $key)
+    {
+        return $this->deviceAttributes[$key] ?? null;
+    }
+
+    /**
+     * Get device UDID
+     */
+    public function getDeviceUdid(): string
+    {
+        return $this->deviceAttributes['udid'] ?? $this->generateDeviceUdid();
+    }
+
+    /**
+     * Check if device is trusted
+     */
+    public function isDeviceTrusted(Device $device): bool
+    {
+        return $device->is_trusted ?? false;
+    }
+
+    /**
+     * Mark device as trusted
+     */
+    public function markDeviceAsTrusted(Device $device): bool
+    {
+        return $device->update(['is_trusted' => true, 'trusted_at' => now()]);
+    }
+
+    /**
+     * Mark device as untrusted
+     */
+    public function markDeviceAsUntrusted(Device $device): bool
+    {
+        return $device->update(['is_trusted' => false, 'trusted_at' => null]);
+    }
+
+    /**
+     * Get device statistics
+     */
+    public function getDeviceStatistics(): array
+    {
+        return [
+            'total_devices' => Device::count(),
+            'active_devices' => Device::where('is_active', true)->count(),
+            'trusted_devices' => Device::where('is_trusted', true)->count(),
+            'devices_by_os' => Device::groupBy('os')->selectRaw('os, count(*) as count')->get(),
+            'devices_by_manufacturer' => Device::groupBy('manufacturer')->selectRaw('manufacturer, count(*) as count')->get(),
+        ];
+    }
 }
-
-
-
-
-
-

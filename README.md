@@ -1,128 +1,123 @@
 # Laravel Auth Tracker
 
-#### Track and manage sessions, Passport tokens and Sanctum tokens in Laravel.
+[![Latest Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/abobakeralshahari/laravel-auth-tracker)
+[![Laravel Version](https://img.shields.io/badge/Laravel-5.8%2B-red.svg)](https://laravel.com)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![PHP Version](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)](https://php.net)
 
-This package allows you to track separately each login (session or token), attaching informations by parsing the
-User-Agent and saving the IP address.
+## 📋 Overview
 
-Using a supported provider or creating your own custom providers, you can collect even more informations with
-an IP address lookup to get, for example, the geolocation.
+**Laravel Auth Tracker** is an advanced service-based package for tracking and managing user authentication sessions in Laravel applications. It provides a comprehensive system for tracking logins, managing devices, and controlling sessions with full support for Laravel Passport and Sanctum.
 
-You can revoke every single session/token or all at once.
-In case of sessions with remember tokens, every session has its own remember token.
-This way, you can revoke a session without affecting the others.
+## ✨ Key Features
 
-* [Compatibility](#compatibility)
-* [Installation](#installation)
-  * [Create the logins table](#create-the-logins-table)
-  * [Prepare your authenticatable models](#prepare-your-authenticatable-models)
-  * [Prepare your LoginController](#prepare-your-logincontroller)
-  * [Choose and install a user-agent parser](#choose-and-install-a-user-agent-parser)
-  * [Configure the user provider](#configure-the-user-provider)
-  * [Generate the scaffolding](#generate-the-scaffolding)
-  * [Laravel Sanctum](#laravel-sanctum)
-* [Usage](#usage)
-  * [Retrieving the logins](#retrieving-the-logins)
-    * [Get all the logins](#get-all-the-logins)
-    * [Get the current login](#get-the-current-login)
-  * [Check for the current login](#check-for-the-current-login)
-  * [Revoking logins](#revoking-logins)
-    * [Revoke a specific login](#revoke-a-specific-login)
-    * [Revoke all the logins](#revoke-all-the-logins)
-    * [Revoke all the logins except the current one](#revoke-all-the-logins-except-the-current-one)
-* [Routes](#routes)
-* [Events](#events)
-  * [Login](#login)
-* [IP address lookup](#ip-address-lookup)
-  * [Ip2Location Lite DB3](#ip2location-lite-db3)
-  * [Custom provider](#custom-provider)
-  * [Handle API errors](#handle-api-errors)
-* [Blade directives](#blade-directives)
-* [License](#license)
+### 🔐 Comprehensive Session Tracking
+- Track web sessions (Sessions)
+- Laravel Passport API support
+- Laravel Sanctum API support
+- Detailed login tracking
 
-## Compatibility
+### 📱 Advanced Device Management
+- Link devices to users
+- Track device details (OS, model, etc.)
+- Support for mobile and web applications
+- FCM token management for notifications
+- Dynamic device attribute configuration
 
-- This package has been tested with **Laravel 5.8, 6.x and 7.x**.
+### 🌍 Geolocation Tracking
+- Extract location from IP address
+- Support for multiple location service providers
+- Custom provider support
 
-- It works with all the session drivers supported by Laravel, except of course the cookie driver which saves
-the sessions only in the client browser and the array driver.
+### 🛡️ Advanced Security
+- Client ID and device token system
+- Token refresh mechanism
+- Rate limiting for API protection
+- Suspicious activity detection
+- Protection against session fixation attacks
 
-- To track API tokens, it supports the official **Laravel Passport (>= 7.5)** and **Laravel Sanctum (v2)** packages.
+### 🔔 Smart Notifications
+- New device login notifications
+- Suspicious activity alerts
+- Multiple notification channels (Email, Push, Database, Webhook)
+- Configurable notification types
 
-- In case you want to use Passport with multiple user providers, this package works with the
-`sfelix-martins/passport-multiauth` package (see [here](https://github.com/sfelix-martins/passport-multiauth)).
+### 📊 Comprehensive Analytics
+- Active session management
+- Login history tracking
+- Detailed statistics
+- Device analytics
 
-## Installation
+## 🚀 Installation
 
-Install the package with composer:
+### Requirements
+- PHP 7.2 or higher
+- Laravel 5.8 or higher
+- MySQL/PostgreSQL/SQLite
 
-```bash 
-composer require alshahari/laravel-auth-tracker
+### Install via Composer
+
+```bash
+composer require abobakeralshahari/laravel-auth-tracker
 ```
 
-Publish the configuration file (`config/auth_tracker.php`) with:
+### Publish Configuration
 
 ```bash
 php artisan vendor:publish --provider="Alshahari\AuthTracker\AuthTrackerServiceProvider" --tag="config"
 ```
 
-### Create the logins table
-
-Before running the migrations, you can change the name of the table that will be used to save the logins
-(named by default `logins`) with the `table_name` option of the configuration file.
-
-Launch the database migrations to create the required table:
+### Run Migrations
 
 ```bash
 php artisan migrate
 ```
 
-### Prepare your authenticatable models
+## ⚙️ Configuration
 
-In order to track the logins of your app's users, add the `Alshahari\AuthTracker\Traits\AuthTracking` trait
-on each of your authenticatable models that you want to track:
+### 1. Setup Models
+
+Add the `AuthTracking` trait to your user model:
 
 ```php
+<?php
+
+namespace App;
+
 use Alshahari\AuthTracker\Traits\AuthTracking;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-// ...
 
 class User extends Authenticatable
 {
     use AuthTracking;
-
-    // ...
+    
+    // Your model code...
 }
 ```
 
-### Prepare your LoginController
+### 2. Update LoginController
 
-Replace the `Illuminate\Foundation\Auth\AuthenticatesUsers` trait of your `App\Http\Controllers\Auth\LoginController`
-by the `Alshahari\AuthTracker\Traits\AuthenticatesWithTracking` trait provided by this package.
+Replace `AuthenticatesUsers` with `AuthenticatesWithTracking`:
 
-This trait overrides the `sendLoginResponse` method by removing the session regeneration.
-But don't worry, there's no security issue here.
-Instead, this package do the session regeneration in an event
-listener on the login event (before saving the informations of the new login).
-Because of the `sendLoginResponse` regenerating the session ID after the login event has been dispatched,
-this approach allows to get the right session ID generated by a new login.
+```php
+<?php
 
-### Choose and install a user-agent parser
+namespace App\Http\Controllers\Auth;
 
-This package relies on a User-Agent parser to extract the informations.
+use Alshahari\AuthTracker\Traits\AuthenticatesWithTracking;
+use Illuminate\Http\Request;
 
-Currently, it supports two of the most popular parsers:
-- WhichBrowser ([https://github.com/WhichBrowser/Parser-PHP](https://github.com/WhichBrowser/Parser-PHP))
-- Agent ([https://github.com/jenssegers/agent](https://github.com/jenssegers/agent))
+class LoginController extends Controller
+{
+    use AuthenticatesWithTracking;
+    
+    // Your controller code...
+}
+```
 
-Before using the Auth Tracker, you need to choose a supported parser, install it and indicate in the configuration file which one you want
-to use.
+### 3. Configure User Provider
 
-### Configure the user provider
-
-This package comes with a modified Eloquent user provider that retrieve remembered users from the logins table instead of the users table.
-
-In your `config/auth.php` configuration file, use the `eloquent-tracked` driver in the user providers list for the users you want to track:
+In `config/auth.php`:
 
 ```php
 'providers' => [
@@ -130,328 +125,418 @@ In your `config/auth.php` configuration file, use the `eloquent-tracked` driver 
         'driver' => 'eloquent-tracked',
         'model' => App\User::class,
     ],
-    
-    // ...
 ],
 ```
 
-### Generate the scaffolding
+### 4. Install User Agent Parser
 
-This step is optional but can help you getting started by generating the scaffolding of the Auth Tracker.
+Choose one of the following:
 
-Launch this command:
-
+#### Option A: WhichBrowser
 ```bash
-php artisan tracker:install
+composer require whichbrowser/parser
 ```
 
-This command will:
+#### Option B: Agent
+```bash
+composer require jenssegers/agent
+```
 
-- publish the controller `AuthTrackingController` in `app/Http/Controllers/Auth`
-- publish the view `list.blade.php` in `resources/views/auth`
-- add routes in `routes/web.php` via the `Route::authTracker()` macro (see all the available [routes](#routes))
-
-Now, log in with a tracked user and go to `/security`. You will find a page to manage the logins! 
-
-### Laravel Sanctum
-
-In the actual version (2.1.0) of the Laravel Sanctum package, there is no event allowing us to know when
-an API token is created.
-
-If you are issuing API tokens with Laravel Sanctum and want to enable auth tracking,
-you will have to dispatch an event provided by the Auth Tracker.
-
-Dispatch the `Alshahari\AuthTracker\Events\PersonalAccessTokenCreated` event passing the personal access token
-newly created by the `createToken` method of the Laravel Sanctum trait.
-
-Based on the [example](https://laravel.com/docs/7.x/sanctum#issuing-mobile-api-tokens) provided by
-the Laravel Sanctum documentation, it might look like this:
+Then update the configuration in `config/auth_tracker.php`:
 
 ```php
-use Alshahari\AuthTracker\Events\PersonalAccessTokenCreated;
-use App\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+'parser' => 'whichbrowser', // or 'agent'
+```
 
-Route::post('/sanctum/token', function (Request $request) {
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-        'device_name' => 'required'
-    ]);
+## 📖 Usage
 
-    $user = User::where('email', $request->email)->first();
+### Service-Based Architecture
 
-    if (! $user || ! Hash::check($request->password, $user->password)) {
-        throw ValidationException::withMessages([
-            'email' => ['The provided credentials are incorrect.'],
+The package is designed as a service layer without direct endpoints. Use the `AuthTrackerService` in your application:
+
+```php
+use Alshahari\AuthTracker\Services\AuthTrackerService;
+
+class YourController extends Controller
+{
+    protected $authTracker;
+
+    public function __construct(AuthTrackerService $authTracker)
+    {
+        $this->authTracker = $authTracker;
+    }
+
+    public function login(Request $request)
+    {
+        // Your login logic...
+        
+        // Track the login
+        $login = $this->authTracker->trackLogin(auth()->user(), [
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'login_by' => 'web',
+            'login_from' => 'web_pc',
         ]);
     }
+}
+```
 
-    $newAccessToken = $user->createToken($request->device_name);
+### Device Management
+
+```php
+use Alshahari\AuthTracker\Services\DeviceService;
+
+class DeviceController extends Controller
+{
+    protected $deviceService;
+
+    public function __construct(DeviceService $deviceService)
+    {
+        $this->deviceService = $deviceService;
+    }
+
+    public function registerDevice(Request $request)
+    {
+        $device = $this->deviceService->getOrCreateDevice([
+            'os' => $request->header('x-device-os'),
+            'manufacturer' => $request->header('x-device-manufacturer'),
+            'model' => $request->header('x-device-model'),
+            'app_version' => $request->header('x-device-app-version'),
+        ]);
+
+        return response()->json([
+            'client_id' => $device->client_id,
+            'device_token' => $this->deviceService->generateDeviceToken($device),
+        ]);
+    }
+}
+```
+
+### Security Features
+
+```php
+use Alshahari\AuthTracker\Services\SecurityService;
+
+class SecurityController extends Controller
+{
+    protected $securityService;
+
+    public function __construct(SecurityService $securityService)
+    {
+        $this->securityService = $securityService;
+    }
+
+    public function validateApiRequest(Request $request)
+    {
+        $clientId = $request->header('X-Client-ID');
+        $deviceToken = $request->header('X-Device-Token');
+
+        $device = $this->securityService->validateApiRequest($clientId, $deviceToken);
+        
+        if (!$device) {
+            return response()->json(['error' => 'Invalid credentials'], 401);
+        }
+
+        // Continue with your API logic...
+    }
+
+    public function refreshToken(Request $request)
+    {
+        $clientId = $request->header('X-Client-ID');
+        $currentToken = $request->header('X-Device-Token');
+
+        $device = $this->securityService->validateClientId($clientId);
+        
+        if (!$device) {
+            return response()->json(['error' => 'Invalid client ID'], 401);
+        }
+
+        $newToken = $this->securityService->refreshDeviceToken($device, $currentToken);
+        
+        if (!$newToken) {
+            return response()->json(['error' => 'Token refresh failed'], 400);
+        }
+
+        return response()->json(['device_token' => $newToken]);
+    }
+}
+```
+
+### Notification System
+
+```php
+use Alshahari\AuthTracker\Services\NotificationService;
+
+class NotificationController extends Controller
+{
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
+    public function sendLoginNotification($user, $device, $login)
+    {
+        $this->notificationService->sendLoginNotification($user, $device, $login);
+    }
+}
+```
+
+## 🔧 Advanced Configuration
+
+### Device Configuration
+
+```php
+// config/auth_tracker.php
+'device' => [
+    'required_attributes' => [
+        'udid',
+        'os',
+        'manufacturer',
+        'model'
+    ],
     
-    event(new PersonalAccessTokenCreated($newAccessToken)); // Dispatch here the event
+    'optional_attributes' => [
+        'os_version',
+        'fcm_token',
+        'app_version',
+        'app_type',
+        'tenant',
+        'user_agent',
+        'screen_resolution',
+        'timezone',
+        'language',
+        'battery_level',
+        'network_type',
+        'carrier'
+    ],
+    
+    'valid_os' => [
+        'android',
+        'ios',
+        'windows',
+        'macos',
+        'linux',
+        'web'
+    ],
+    
+    'auto_detect' => true,
+    'trust_new_devices' => false,
+],
+```
 
-    return $newAccessToken->plainTextToken;
+### Security Configuration
+
+```php
+'security' => [
+    'token_lifetime_days' => 30,
+    'api_key_lifetime_days' => 90,
+    'token_refresh_interval' => 3600, // 1 hour in seconds
+    
+    'rate_limits' => [
+        'login' => 10, // 10 login attempts per hour
+        'token_refresh' => 5, // 5 token refreshes per hour
+        'api_request' => 100, // 100 API requests per hour
+    ],
+    
+    'require_client_id' => true,
+    'require_device_token' => true,
+    'auto_revoke_expired_tokens' => true,
+],
+```
+
+### Notification Configuration
+
+```php
+'notifications' => [
+    'enabled' => true,
+    
+    'types' => [
+        'login' => true,
+        'new_device' => true,
+        'suspicious_login' => true,
+        'device_registration' => true,
+        'general_login' => false,
+    ],
+    
+    'channels' => [
+        'email' => true,
+        'push' => true,
+        'database' => true,
+        'webhook' => false,
+    ],
+    
+    'email_classes' => [
+        'new_device' => \App\Notifications\NewDeviceLogin::class,
+        'suspicious_login' => \App\Notifications\SuspiciousLogin::class,
+        'device_registration' => \App\Notifications\DeviceRegistered::class,
+    ],
+],
+```
+
+## 📱 Mobile App Integration
+
+### Flutter Example
+
+```dart
+class AuthTrackerService {
+  static const String baseUrl = 'https://api.example.com';
+  
+  Future<Map<String, dynamic>> registerDevice() async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/devices/register'),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-device-os': Platform.isAndroid ? 'android' : 'ios',
+        'x-device-manufacturer': await DeviceInfoPlugin().androidInfo.then((info) => info.manufacturer),
+        'x-device-model': await DeviceInfoPlugin().androidInfo.then((info) => info.model),
+        'x-device-app-version': packageInfo.version,
+      },
+    );
+    
+    return json.decode(response.body);
+  }
+  
+  Future<Map<String, dynamic>> refreshToken(String clientId, String currentToken) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/security/refresh-token'),
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Client-ID': clientId,
+        'X-Device-Token': currentToken,
+      },
+    );
+    
+    return json.decode(response.body);
+  }
+}
+```
+
+### React Native Example
+
+```javascript
+import axios from 'axios';
+
+const authTrackerAPI = axios.create({
+  baseURL: 'https://api.example.com',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export const registerDevice = (deviceInfo) => {
+  return authTrackerAPI.post('/api/devices/register', deviceInfo);
+};
+
+export const refreshToken = (clientId, currentToken) => {
+  return authTrackerAPI.post('/api/security/refresh-token', {
+    client_id: clientId,
+    device_token: currentToken,
+  });
+};
+```
+
+## 🔒 Security Features
+
+### Client ID and Device Token System
+
+1. **Client ID**: Unique identifier for each device
+2. **Device Token**: Secure token for API authentication
+3. **Token Refresh**: Automatic token refresh mechanism
+4. **Rate Limiting**: Protection against abuse
+
+### Suspicious Activity Detection
+
+- New device detection
+- Different location login
+- Unusual time login
+- Different IP pattern
+
+### API Protection
+
+```php
+// Middleware for API protection
+Route::middleware(['auth:sanctum', 'device.auth'])->group(function () {
+    // Protected API routes
 });
 ```
 
-## Usage
-
-The `AuthTracking` trait provided by this package surcharge your users models with methods to list their logins and to
-give you full individual control on them.
-
-### Retrieving the logins
-
-#### Get all the logins
+## 📊 Analytics and Statistics
 
 ```php
-$logins = request()->user()->logins;
-```
+use Alshahari\AuthTracker\Services\AuthTrackerService;
 
-#### Get the current login
-
-```php
-$login = request()->user()->currentLogin();
-```
-
-### Check for the current login
-
-Each login instance comes with a dynamic `is_current` attribute.
-It's a boolean that indicates if the login instance is the current login.
-
-### Revoking logins
-
-#### Revoke a specific login
-
-To revoke a specific login, use the `logout` method with the ID of the login you want to revoke.
-If no parameter is given, the current login will be revoked.
-
-```php
-request()->user()->logout(1); // Revoke the login where id=1
-```
-
-```php
-request()->user()->logout(); // Revoke the current login
-```
-
-#### Revoke all the logins
-
-We can destroy all the sessions and revoke all the Passport tokens by using the `logoutAll` method.
-Useful when, for example, the user's password is modified and we want to logout all the devices.
-
-This feature destroys all sessions, even those remembered.
-
-```php
-request()->user()->logoutAll();
-```
-
-#### Revoke all the logins except the current one
-
-The `logoutOthers` method acts in the same way as the `logoutAll` method except that it keeps the current
-session / Passport token alive.
-
-```php
-request()->user()->logoutOthers();
-```
-
-## Routes
-
-Here are the routes added by the scaffolding command:
-
-```php
-Route::prefix($prefix)->group(function () {
-                
-    // Route to manage logins
-    Route::get('/', 'Auth\AuthTrackingController@listLogins')->name('login.list');
-
-    // Logout routes
-    Route::middleware('auth')->group(function () {
-        Route::post('logout/all', 'Auth\AuthTrackingController@logoutAll')->name('logout.all');
-        Route::post('logout/others', 'Auth\AuthTrackingController@logoutOthers')->name('logout.others');
-        Route::post('logout/{id}', 'Auth\AuthTrackingController@logoutById')->where('id', '[0-9]+')->name('logout.id');
-    });
-});
-```
-
-## Events
-
-### Login
-
-On a new login, you can listen to the event `Alshahari\AuthTracker\Events\Login`.
-It receives a `RequestContext` object containing all the informations collected on the request, accessible on the event
-with the `context` property.
-
-Properties available:
-```php
-$this->context->userAgent; // The full, unparsed, User-Agent header
-$this->context->ip; // The IP address
-```
-
-Methods available:
-```php
-$this->context->parser(); // Returns the parser used to parse the User-Agent header
-$this->context->ip(); // Returns the IP address lookup provider
-```
-
-Methods available in the parser:
-```php
-$this->context->parser()->getDevice(); // The name of the device (MacBook...)
-$this->context->parser()->getDeviceType(); // The type of the device (desktop, mobile, tablet, phone...)
-$this->context->parser()->getPlatform(); // The name of the platform (macOS...)
-$this->context->parser()->getBrowser(); // The name of the browser (Chrome...)
-```
-
-Methods available in the IP address lookup provider:
-```php
-$this->context->ip()->getCountry(); // The name of the country
-$this->context->ip()->getRegion(); // The name of the region
-$this->context->ip()->getCity(); // The name of the city
-$this->context->ip()->getResult(); // The entire result of the API call as a Laravel collection
-
-// And all your custom methods in the case of a custom provider
-```
-
-## IP address lookup
-
-By default, the Auth Tracker collects the IP address and the informations given by the User-Agent header.
-
-But you can go even further and collect other informations about the IP address, like the geolocation.
-
-To do so, you first have to enable the IP lookup feature in the configuration file.
-
-This package comes with two officially supported providers for IP address lookup
-(see the IP Address Lookup section in the `config/auth_tracker.php` configuration file).
-
-### Ip2Location Lite DB3
-
-This package officially support the IP address geolocation with the Ip2Location Lite DB3.
-
-Here are the steps to enable and use it:
-
-- Download the current version of the database and import it in your database as explained in the documentation:
-[https://lite.ip2location.com/database/ip-country-region-city](https://lite.ip2location.com/database/ip-country-region-city)
-
-- Set the name of the `ip_lookup.provider` option to `ip2location-lite` in the `config/auth_tracker.php` configuration file
-
-- Indicate the name of the tables used in your database for IPv4 and IPv6 in the `config/auth_tracker.php` configuration file
-(by default it uses the same names as the documentation: `ip2location_db3` and `ip2location_db3_ipv6`)
-
-### Custom provider
-
-You can add your own providers by creating a class that implements the
-`Alshahari\AuthTracker\Interfaces\IpProvider` interface and use the
-`Alshahari\AuthTracker\Traits\MakesApiCalls` trait.
-
-Your custom class have to be registered in the `custom_providers` array of the configuration file.
-
-Let's see an example of an IP lookup provider with the built-in `IpApi` provider:
-
-```php
-use Alshahari\AuthTracker\Interfaces\IpProvider;
-use Alshahari\AuthTracker\Traits\MakesApiCalls;
-use GuzzleHttp\Psr7\Request;
-
-class IpApi implements IpProvider
+class AnalyticsController extends Controller
 {
-    use MakesApiCalls;
-
-    /**
-     * Get the Guzzle request.
-     *
-     * @return Request
-     */
-    public function getRequest()
+    public function getStatistics(AuthTrackerService $authTracker)
     {
-        return new Request('GET', 'http://ip-api.com/json/'.request()->ip().'?fields=25');
-    }
-
-    /**
-     * Get the country name.
-     *
-     * @return string
-     */
-    public function getCountry()
-    {
-        return $this->result->get('country');
-    }
-
-    /**
-     * Get the region name.
-     *
-     * @return string
-     */
-    public function getRegion()
-    {
-        return $this->result->get('regionName');
-    }
-
-    /**
-     * Get the city name.
-     *
-     * @return string
-     */
-    public function getCity()
-    {
-        return $this->result->get('city');
+        $user = auth()->user();
+        
+        $statistics = $authTracker->getLoginStatistics($user, [
+            'date_from' => now()->subDays(30),
+            'date_to' => now(),
+        ]);
+        
+        return response()->json($statistics);
     }
 }
 ```
 
-As you can see, the class have a `getRequest` method that must return a `GuzzleHttp\Psr7\Request` instance.
+## 🧪 Testing
 
-Guzzle utilizes PSR-7 as the HTTP message interface. Check its documentation:
-[http://docs.guzzlephp.org/en/stable/psr7.html](http://docs.guzzlephp.org/en/stable/psr7.html)
+```bash
+# Run tests
+php artisan test
 
-The `IpProvider` interface comes with required methods related to the geolocation.
-All keys of the API response are accessible in your provider via `$this->result`, which is a Laravel collection.
-
-If you want to collect other informations, you can add a `getCustomData` method in your custom provider.
-This custom data will be saved in the logins table in the `ip_data` JSON column.
-Let's see an example of additional data:
-
-```php
-public function getCustomData()
-{
-    return [
-        'country_code' => $this->result->get('countryCode'),
-        'latitude' => $this->result->get('lat'),
-        'longitude' => $this->result->get('lon'),
-        'timezone' => $this->result->get('timezone'),
-        'isp_name' => $this->result->get('isp'),
-    ];
-}
+# Run specific tests
+php artisan test --filter=AuthTrackerTest
 ```
 
-### Handle API errors
+## 🔍 Troubleshooting
 
-In case of an exception throwed during the API call of your IP address lookup provider, the FailedApiCall event
-is fired by this package.
+### Common Issues
 
-This event has an exception attribute containing the GuzzleHttp\Exception\TransferException
-(see [Guzzle documentation](http://docs.guzzlephp.org/en/stable/quickstart.html#exceptions)).
+1. **Device not being tracked**
+   - Ensure `AuthTracking` trait is added to user model
+   - Check user provider configuration
 
-You can listen to this event to add your own logic.
+2. **Token validation failing**
+   - Verify client ID and device token
+   - Check token expiration
 
-## Blade directives
+3. **Notifications not sending**
+   - Check notification configuration
+   - Verify notification classes exist
 
-Check if the auth tracking is enabled for the current user:
+## 🤝 Contributing
 
-```php
-@tracked
-    <a href="{{ route('login.list') }}">Security</a>
-@endtracked
-```
+We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) before submitting pull requests.
 
-Check if the IP lookup feature is enabled:
+## 📝 License
 
-```php
-@ipLookup
-    {{ $login->location }}
-@endipLookup
-```
+This project is licensed under the [MIT License](LICENSE).
 
-## License
+## 👨‍💻 Author
 
-Open source, licensed under the [MIT license](LICENSE).
+**Abobaker Al-shahari**
+- Email: abobaker.m2017@gmail.com
+- GitHub: [@abobakeralshahari](https://github.com/abobakeralshahari)
+
+## 🙏 Acknowledgments
+
+- Laravel team
+- PHP community
+- All contributors
+
+## 📞 Support
+
+If you encounter any issues or have suggestions:
+
+1. Open a [GitHub Issue](https://github.com/abobakeralshahari/laravel-auth-tracker/issues)
+2. Contact us via email
+3. Join GitHub discussions
+
+---
+
+**⭐ If you like this project, please give it a star!**

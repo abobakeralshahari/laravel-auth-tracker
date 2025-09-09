@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('devices', function (Blueprint $table) {
-            // Update existing columns
+            // Update existing columns to be longer
             $table->string('udid', 500)->change(); // Make UDID longer and unique
             $table->string('os', 50)->change(); // Make OS field longer
             $table->string('model', 100)->change(); // Make model field longer

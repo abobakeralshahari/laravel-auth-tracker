@@ -2,42 +2,64 @@
 
 namespace Alshahari\AuthTracker\Tests;
 
+use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\Client;
+use Laravel\Passport\ClientRepository;
 
 class PassportTest extends TestCase
 {
-    protected $passwordGrantClient;
+    protected Client $client;
 
-    public function test_auth_with_passport()
+    protected function setUp(): void
     {
-        $this->passwordGrantClient = Client::where('password_client', true)->first();
+        parent::setUp();
 
-        // Create and authenticate user 1
-        $response = $this->authenticate(factory(PassportUser::class)->create());
+        $this->client = app(ClientRepository::class)->createPasswordGrantClient('Test', 'passport_users', true);
+    }
+
+    public function test_access_token_is_tracked(): void
+    {
+        $user = $this->createUser(PassportUser::class);
+
+        $accessToken = $this->authenticate($user)->json('access_token');
+
+        $this->assertCount(1, $user->logins);
+
+        $response = $this->getJson('/api/check', ['Authorization' => 'Bearer '.$accessToken]);
+
         $response->assertOk();
+        $this->assertNotEmpty($response->json('id'));
+        $this->assertTrue($response->json('is_current'));
+    }
 
-        $accessToken = $response->json('access_token');
+    public function test_logout_others_revokes_the_other_tokens(): void
+    {
+        $user = $this->createUser(PassportUser::class);
 
-        $response = $this->getJson('/api/check', [
-            'Authorization' => 'Bearer '.$accessToken,
-        ]);
-        $response->assertOk();
+        $first = $this->authenticate($user)->json('access_token');
+        $second = $this->authenticate($user)->json('access_token');
 
-        // Check that current login exists
-        $this->assertNotEmpty($currentLogin = $response->json());
+        $this->postJson('/api/logout/others', [], ['Authorization' => 'Bearer '.$second])->assertOk();
+
+        // The request guard caches the resolved user for the lifetime of the
+        // application instance, so reset it between simulated requests.
+        Auth::forgetGuards();
+        $this->getJson('/api/check', ['Authorization' => 'Bearer '.$first])->assertUnauthorized();
+
+        Auth::forgetGuards();
+        $this->getJson('/api/check', ['Authorization' => 'Bearer '.$second])->assertOk();
+        $this->assertCount(1, $user->activeLogin());
     }
 
     protected function authenticate($user)
     {
-        // Authenticate user with Passport
-
         return $this->postJson('/oauth/token', [
             'grant_type' => 'password',
-            'client_id' => $this->passwordGrantClient->id,
-            'client_secret' => $this->passwordGrantClient->secret,
+            'client_id' => $this->client->getKey(),
+            'client_secret' => $this->client->plainSecret,
             'username' => $user->email,
             'password' => 'password',
-            'scope' => ''
-        ]);
+            'scope' => '',
+        ])->assertOk();
     }
 }

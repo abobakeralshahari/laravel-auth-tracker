@@ -6,7 +6,7 @@ use Alshahari\AuthTracker\Exceptions\CustomIpProviderException;
 use Alshahari\AuthTracker\Exceptions\IpProviderException;
 use Alshahari\AuthTracker\Interfaces\IpProvider;
 use Alshahari\AuthTracker\IpProviders\Ip2LocationLite;
-use alshahari\AuthTracker\IpProviders\IpApi;
+use Alshahari\AuthTracker\IpProviders\IpApi;
 use Illuminate\Support\Facades\App;
 
 class IpProviderFactory

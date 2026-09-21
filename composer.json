@@ -1,6 +1,7 @@
 {
     "name": "abobakeralshahari/laravel-auth-tracker",
-    "description": "Track and manage sessions, Passport tokens and Sanctum tokens in Laravel.",
+    "description": "Track and manage sessions, devices, Passport tokens and Sanctum tokens in Laravel.",
+    "keywords": ["laravel", "auth", "sessions", "devices", "sanctum", "passport", "tracking"],
     "license": "MIT",
     "authors": [
         {
@@ -11,16 +12,32 @@
         }
     ],
     "require": {
-        "php": "^7.2.5|^8.0"
+        "php": "^8.2",
+        "illuminate/auth": "^11.0|^12.0",
+        "illuminate/console": "^11.0|^12.0",
+        "illuminate/contracts": "^11.0|^12.0",
+        "illuminate/database": "^11.0|^12.0",
+        "illuminate/events": "^11.0|^12.0",
+        "illuminate/http": "^11.0|^12.0",
+        "illuminate/routing": "^11.0|^12.0",
+        "illuminate/session": "^11.0|^12.0",
+        "illuminate/support": "^11.0|^12.0",
+        "jenssegers/agent": "^2.6"
     },
     "require-dev": {
-        "mockery/mockery": "^1.3",
-        "phpunit/phpunit": "^8.5",
-        "orchestra/testbench": "^5.1",
-        "laravel/sanctum": "^2.1",
-        "laravel/passport": "^8.4",
-        "whichbrowser/parser": "^2.0",
-        "jenssegers/agent": "^2.6"
+        "guzzlehttp/guzzle": "^7.8",
+        "laravel/passport": "^13.0",
+        "laravel/sanctum": "^4.0",
+        "mockery/mockery": "^1.6",
+        "orchestra/testbench": "^10.0",
+        "phpunit/phpunit": "^11.5",
+        "whichbrowser/parser": "^2.1"
+    },
+    "suggest": {
+        "laravel/sanctum": "Required to track Sanctum personal access tokens.",
+        "laravel/passport": "Required to track Passport OAuth access tokens.",
+        "whichbrowser/parser": "Alternative User-Agent parser (set parser => 'whichbrowser').",
+        "guzzlehttp/guzzle": "Required by the HTTP based IP lookup providers."
     },
     "autoload": {
         "psr-4": {
@@ -32,11 +49,19 @@
             "Alshahari\\AuthTracker\\Tests\\": "tests"
         }
     },
+    "scripts": {
+        "test": "phpunit"
+    },
     "extra": {
         "laravel": {
             "providers": [
                 "Alshahari\\AuthTracker\\AuthTrackerServiceProvider"
             ]
         }
-    }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

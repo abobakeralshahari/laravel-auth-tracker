@@ -2,13 +2,15 @@
 
 namespace Alshahari\AuthTracker\Models;
 
+use Alshahari\AuthTracker\AuthTracker;
 use Alshahari\AuthTracker\EloquentQueryBuilder;
-use Alshahari\AuthTracker\Traits\ManagesLogins;
 use Alshahari\AuthTracker\Traits\Expirable;
-use Carbon\Carbon;
+use Alshahari\AuthTracker\Traits\ManagesLogins;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Alshahari\AuthTracker\Models\Device;
+use Illuminate\Support\Facades\Auth;
 
 class Login extends Model
 {
@@ -17,12 +19,20 @@ class Login extends Model
     const EXPIRES_AT = 'expires_at';
 
     /**
-     * The attributes that should be mutated to dates.
+     * Session key holding the id of the login bound to the current session.
+     */
+    const SESSION_KEY = 'auth_tracker.login_id';
+
+    /**
+     * The attributes that should be cast.
      *
      * @var array
      */
-    protected $dates = [
-        'expires_at'
+    protected $casts = [
+        'expires_at' => 'datetime',
+        'logout_at' => 'datetime',
+        'cleared_by_user' => 'boolean',
+        'ip_data' => 'array',
     ];
 
     /**
@@ -46,14 +56,12 @@ class Login extends Model
         'personal_access_token_id',
         'expires_at',
         'deleted_at',
-
         'device_id',
-'updated_at',
+        'updated_at',
         'device_type',
         'ip_data',
         'platform',
         'browser',
-
         'cleared_by_user',
     ];
 
@@ -72,20 +80,29 @@ class Login extends Model
      */
     public function __construct(array $attributes = [])
     {
-        $this->setTable(config('auth_tracker.table_name'));
-        $this->setConnection(config('auth_tracker.connection'));
-
         parent::__construct($attributes);
+
+        $this->setTable(config('auth_tracker.table_name', 'logins'));
+
+        if ($connection = config('auth_tracker.connection')) {
+            $this->setConnection($connection);
+        }
     }
 
     /**
      * Relation between Login and an authenticatable model.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
-    public function authenticatable()
+    public function authenticatable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * The device used for this login.
+     */
+    public function device(): BelongsTo
+    {
+        return $this->belongsTo(AuthTracker::deviceModel(), 'device_id');
     }
 
     /**
@@ -95,106 +112,111 @@ class Login extends Model
      */
     public function getLocationAttribute()
     {
-        $location = [
-            $this->city,
-            $this->region,
-            $this->country,
-        ];
+        $location = array_filter([$this->city, $this->region, $this->country]);
 
-        return array_filter($location) ? implode(', ', $location) : null;
+        return $location ? implode(', ', $location) : null;
     }
 
     /**
-     * Dynamicly add the "is_current" attribute.
+     * Dynamically add the "is_current" attribute.
      *
      * @return bool
      */
     public function getIsCurrentAttribute()
     {
-        if ($this->session_id && request()->hasSession()) {
-            // Session
-            return $this->session_id === request()->session()->getId();
+        $request = app()->bound('request') ? request() : null;
 
-        } elseif ($this->oauth_access_token_id && request()->user()->isAuthenticatedByPassport()) {
+        if (! $request) {
+            return false;
+        }
 
-            // Passport
+        // Session
+        if ($this->session_id && $request->hasSession()) {
+            $session = $request->session();
 
-            return $this->oauth_access_token_id === request()->user()->token()->id;
+            if ($session->has(self::SESSION_KEY)) {
+                return (int) $session->get(self::SESSION_KEY) === (int) $this->getKey();
+            }
 
-        } elseif ($this->personal_access_token_id && request()->user()->isAuthenticatedBySanctum()) {
+            return $this->session_id === $session->getId();
+        }
 
-            // Sanctum
+        $user = $request->user();
 
-            return $this->personal_access_token_id === request()->user()->currentAccessToken()->id;
+        if (! $user || ! method_exists($user, 'isAuthenticatedByPassport')) {
+            return false;
+        }
+
+        // Passport
+        if ($this->oauth_access_token_id && $user->isAuthenticatedByPassport()) {
+            return $this->oauth_access_token_id === $user->currentPassportTokenId();
+        }
+
+        // Sanctum
+        if ($this->personal_access_token_id && $user->isAuthenticatedBySanctum()) {
+            return (int) $this->personal_access_token_id === (int) $user->currentAccessToken()->id;
         }
 
         return false;
     }
 
     /**
-     * Revoke the login.
+     * Determine if this login is still active (not revoked by the user).
+     */
+    public function isActive(): bool
+    {
+        return ! $this->cleared_by_user && is_null($this->logout_at) && ! $this->isExpired();
+    }
+
+    /**
+     * Revoke the login: destroy the session / revoke the token and mark
+     * the login as cleared. The record is kept for the login history.
      *
-     * @return mixed
-     * @throws \Exception
+     * @return bool
      */
     public function revoke()
     {
-
         if ($this->session_id) {
-
-            // Destroy session
             $this->destroySession($this->session_id);
-
         } elseif ($this->oauth_access_token_id) {
-
-            // Revoke Passport token
             $this->revokePassportTokens($this->oauth_access_token_id);
-
         } elseif ($this->personal_access_token_id) {
-
-            // Revoke Sanctum token
             $this->revokeSanctumTokens($this->personal_access_token_id);
-
         }
 
-        // Delete login
-       // return $this->delete();
-    //   return $this->revokeDelete();
-            $date=Carbon::now()->toDateTimeString();
-           $this->update(['cleared_by_user'=>true,'logout_at'=>$date]);
-    }
-    
-    public function revokeDelete(){
-        $date=Carbon::now()->toDateTimeString();
-        return    $this->update(['cleared_by_user'=>true,'logout_at'=>$date]);
+        return $this->markAsRevoked();
     }
 
-
+    /**
+     * Alias of revoke().
+     *
+     * @return bool
+     */
     public function logout()
     {
+        return $this->revoke();
+    }
 
-        if ($this->session_id) {
+    /**
+     * Mark the login as revoked without touching the session / token.
+     *
+     * @return bool
+     */
+    public function markAsRevoked()
+    {
+        return $this->forceFill([
+            'cleared_by_user' => true,
+            'logout_at' => now(),
+            'remember_token' => null,
+        ])->save();
+    }
 
-            // Destroy session
-            $this->destroySession($this->session_id);
-
-        } elseif ($this->oauth_access_token_id) {
-
-            // Revoke Passport token
-            $this->revokePassportTokens($this->oauth_access_token_id);
-
-        } elseif ($this->personal_access_token_id) {
-
-            // Revoke Sanctum token
-            $this->revokeSanctumTokens($this->personal_access_token_id);
-
-        }
-
-        // Delete login
-        // return $this->delete();
-        //   return $this->revokeDelete();
-        $date=Carbon::now()->toDateTimeString();
-        $this->update(['cleared_by_user'=>true,'logout_at'=>$date]);
+    /**
+     * @deprecated Use markAsRevoked().
+     */
+    public function revokeDelete()
+    {
+        return $this->markAsRevoked();
     }
 
     /**
@@ -206,19 +228,5 @@ class Login extends Model
     public function newEloquentBuilder($query)
     {
         return new EloquentQueryBuilder($query);
-    }
-
-
-//    public function user(): MorphTo
-//    {
-//        return $this->morphTo();
-//    }
-
-    public function device()
-    {
-//        $model = config('auth-checker.models.device') ?? Device::class;
-        $model =  Device::class;
-
-        return $this->belongsTo($model,'device_id','id');
     }
 }

@@ -2,46 +2,47 @@
 
 namespace Alshahari\AuthTracker\Traits;
 
+use Alshahari\AuthTracker\AuthTracker;
 use Alshahari\AuthTracker\Models\Login;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait AuthTracking
 {
     /**
      * Get all of the user's logins.
      */
-    public function logins()
+    public function logins(): MorphMany
     {
-        return $this->morphMany('Alshahari\AuthTracker\Models\Login', 'authenticatable');
+        return $this->morphMany(AuthTracker::loginModel(), 'authenticatable');
     }
 
     /**
-     * Get the current user's login.
-     *
-     * @return Login|null
+     * Get the login of the current request.
      */
-    public function currentLogin()
+    public function currentLogin(): ?Login
     {
+        if ($this->isAuthenticatedByPassport()) {
+            return $this->logins()
+                ->where('oauth_access_token_id', $this->currentPassportTokenId())
+                ->first();
+        }
+
+        if ($this->isAuthenticatedBySanctum()) {
+            return $this->logins()
+                ->where('personal_access_token_id', $this->currentAccessToken()->getKey())
+                ->first();
+        }
+
         if ($this->isAuthenticatedBySession()) {
+            $session = request()->session();
 
-            return $this->logins()
-                ->where('session_id', session()->getId())
-                ->first();
+            if ($session->has(Login::SESSION_KEY)) {
+                return $this->logins()->find($session->get(Login::SESSION_KEY));
+            }
 
-        } elseif ($this->isAuthenticatedByPassport()) {
-
-       $token=auth()->user()->token()->id;
-            return $this->logins()
-               // ->where('oauth_access_token_id', $this->token()->id)
-                ->where('oauth_access_token_id', $token)
-                ->first();
-
-        } elseif ($this->isAuthenticatedBySanctum()) {
-
-            return $this->logins()
-                ->where('personal_access_token_id', $this->currentAccessToken()->id)
-                ->first();
-
+            return $this->logins()->where('session_id', $session->getId())->first();
         }
 
         return null;
@@ -50,162 +51,163 @@ trait AuthTracking
     /**
      * Destroy a session / Revoke an access token by its ID.
      *
-     * @param int|null $loginId
-     * @return bool
-     * @throws \Exception
+     * @param  int|string|null  $loginId  Null for the current login.
      */
-    public function logout($loginId = null)
+    public function logout($loginId = null): bool
     {
         $login = $loginId ? $this->logins()->find($loginId) : $this->currentLogin();
 
-        return $login ? (!empty($login->revoke())) : false;
+        return $login ? (bool) $login->revoke() : false;
     }
 
     /**
      * Destroy all sessions / Revoke all access tokens, except the current one.
-     *
-     * @return mixed
      */
-    public function logoutOthers()
+    public function logoutOthers(): bool
     {
+        $current = $this->currentLogin();
 
-        if ($this->isAuthenticatedBySession()) {
-            $login = $this->logins()
-                ->where(function (Builder $query) {
-                    return $query
-                        ->where('session_id', '!=', session()->getId())
-                        ->orWhereNull('session_id');
-                })->get();
-//                        ->revoke();
+        $logins = $this->activeLoginsQuery()
+            ->when($current, fn (Builder $query) => $query->whereKeyNot($current->getKey()))
+            ->get();
 
-        } elseif ($this->isAuthenticatedByPassport()) {
-
-//            return $this->logins()
-            $login = $this->logins()
-                ->where(function (Builder $query) {
-                    return $query
-//                                ->where('oauth_access_token_id', '!=', $this->token()->id)
-                        ->where('oauth_access_token_id', '!=', auth()->user()->token()->id)
-                        ->orWhereNull('oauth_access_token_id');
-                })->get();
-            //   ->revoke();
-
-        } elseif ($this->isAuthenticatedBySanctum()) {
-
-//            return $this->logins()
-            $login = $this->logins()
-                ->where(function (Builder $query) {
-                    return $query
-                        ->where('personal_access_token_id', '!=', $this->currentAccessToken()->id)
-                        ->orWhereNull('personal_access_token_id');
-                })->get();
-            //   ->revoke();
-        }
-
-        if ($login->count() > 0) {
-            foreach ($login as $item) {
-                $item->revoke();
-            }
-
-            return true;
-        }
-
-        return false;
+        return $this->revokeLogins($logins);
     }
 
     /**
      * Destroy all sessions / Revoke all access tokens.
-     *
-     * @return mixed
      */
-    public function logoutAll()
+    public function logoutAll(): bool
     {
-        $login = $this->logins()
-            ->where('logout_at', null)
-            ->where('cleared_by_user', false)
-            ->get();
-
-        if ($login->count() > 0) {
-            foreach ($login as $item) {
-                $item->revoke();
-            }
-            return true;
-        }
-        return false;
-//        return $this->logins()->revoke();
+        return $this->revokeLogins($this->activeLoginsQuery()->get());
     }
 
     /**
      * Determine if current user is authenticated via a session.
-     *
-     * @return bool
      */
-    public function isAuthenticatedBySession()
+    public function isAuthenticatedBySession(): bool
     {
-        return request()->hasSession();
+        $request = app()->bound('request') ? request() : null;
+
+        return $request && $request->hasSession()
+            && ($request->session()->has(Login::SESSION_KEY) || $this->isCurrentUser());
     }
 
     /**
      * Check for authentication via Passport.
-     *
-     * @return bool
      */
-    public function isAuthenticatedByPassport()
+    public function isAuthenticatedByPassport(): bool
     {
-
-        return in_array('Laravel\Passport\HasApiTokens', class_uses($this))
-            && !is_null(auth()->user()->token());
-//            && ! is_null($this->token());
+        return $this->usesTrait('Laravel\Passport\HasApiTokens')
+            && ! is_null($this->currentPassportTokenId());
     }
 
     /**
      * Check for authentication via Sanctum.
-     *
-     * @return bool
      */
-    public function isAuthenticatedBySanctum()
+    public function isAuthenticatedBySanctum(): bool
     {
-        return in_array('Laravel\Sanctum\HasApiTokens', class_uses($this))
-            && !is_null($this->currentAccessToken());
+        return $this->usesTrait('Laravel\Sanctum\HasApiTokens')
+            && ! is_null($this->currentAccessToken());
     }
 
-    public function activeLogin()
+    /**
+     * Id of the Passport access token used by the current request, if any.
+     */
+    public function currentPassportTokenId(): ?string
     {
+        if (! $this->usesTrait('Laravel\Passport\HasApiTokens')) {
+            return null;
+        }
 
-        return $this->logins()
-            ->where('logout_at', null)
-            ->where('cleared_by_user', false)
-            ->with('device:id,udid as ud_id,os,os_version,manufacturer,model,app_version')
-            //   ->select(['id','created_at','ip','city','region','country','device_type','device_id','login_by','login_from','user_agent'])
-            ->orderBy('updated_at', 'desc')
+        $token = $this->token();
+
+        if (! $token && $this->isCurrentUser() && method_exists(auth()->user(), 'token')) {
+            $token = auth()->user()->token();
+        }
+
+        return $token ? (string) $token->getKey() : null;
+    }
+
+    /**
+     * Active logins (not revoked by the user) with their device.
+     */
+    public function activeLogin(): Collection
+    {
+        return $this->activeLoginsQuery()
+            ->with('device:id,udid,os,os_version,manufacturer,model,app_version,app_type')
+            ->orderByDesc('updated_at')
             ->get();
     }
 
-
-    public function historyLogin()
+    /**
+     * Revoked logins.
+     */
+    public function historyLogin(): Collection
     {
         return $this->logins()
-            ->where('logout_at', '!=', null)
+            ->withExpired()
+            ->whereNotNull('logout_at')
             ->where('cleared_by_user', true)
-            ->with('device:id,os,os_version,manufacturer,model,app_version')
-            ->orderBy('id', 'desc')
+            ->with('device:id,os,os_version,manufacturer,model,app_version,app_type')
+            ->orderByDesc('id')
             ->get();
     }
 
-    public function clearHistoryId($id)
+    /**
+     * Delete one revoked login from the history.
+     */
+    public function clearHistoryId($id): int
     {
         return $this->logins()
-            ->where('id', $id)
-            ->where('logout_at', '!=', null)
+            ->withExpired()
+            ->whereKey($id)
+            ->whereNotNull('logout_at')
             ->where('cleared_by_user', true)
             ->delete();
     }
 
-    public function clearHistory()
+    /**
+     * Delete all revoked logins from the history.
+     */
+    public function clearHistory(): int
     {
         return $this->logins()
-            ->where('logout_at', '!=', null)
+            ->withExpired()
+            ->whereNotNull('logout_at')
             ->where('cleared_by_user', true)
             ->delete();
+    }
+
+    /**
+     * Query of the active logins.
+     */
+    protected function activeLoginsQuery(): MorphMany
+    {
+        return $this->logins()
+            ->whereNull('logout_at')
+            ->where('cleared_by_user', false);
+    }
+
+    protected function revokeLogins(Collection $logins): bool
+    {
+        $logins->each->revoke();
+
+        return $logins->isNotEmpty();
+    }
+
+    protected function usesTrait(string $trait): bool
+    {
+        return in_array($trait, class_uses_recursive($this), true);
+    }
+
+    /**
+     * Is this model the authenticated user of the current request?
+     */
+    protected function isCurrentUser(): bool
+    {
+        $user = auth()->user();
+
+        return $user && $user->is($this);
     }
 }

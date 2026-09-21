@@ -2,24 +2,26 @@
 
 namespace Alshahari\AuthTracker\Factories;
 
+use Alshahari\AuthTracker\Interfaces\UserAgentParser;
 use Alshahari\AuthTracker\Parsers\Agent;
 use Alshahari\AuthTracker\Parsers\WhichBrowser;
+use InvalidArgumentException;
 
 class ParserFactory
 {
     /**
      * Build a new user-agent parser.
      *
-     * @param string $name
-     * @return Agent|WhichBrowser
-     * @throws \Exception
+     * @throws InvalidArgumentException
      */
-    public static function build($name)
+    public static function build(?string $name): UserAgentParser
     {
-        switch ($name) {
-            case 'agent': return new Agent();
-            case 'whichbrowser': return new WhichBrowser();
-            default: throw new \Exception('Choose a supported User-Agent parser.');
-        }
+        return match ($name) {
+            'agent', null => new Agent,
+            'whichbrowser' => class_exists(\WhichBrowser\Parser::class)
+                ? new WhichBrowser
+                : throw new InvalidArgumentException('Install whichbrowser/parser to use the "whichbrowser" parser.'),
+            default => throw new InvalidArgumentException("Unsupported User-Agent parser [{$name}]."),
+        };
     }
 }

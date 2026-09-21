@@ -11,41 +11,41 @@ class InstallCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'tracker:install';
+    protected $signature = 'tracker:install
+                            {--force : Overwrite the published configuration file}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Auth Tracker scaffolding';
+    protected $description = 'Publish the Auth Tracker configuration and migrations';
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): int
     {
-        $this->comment('Publishing controllers...');
+        $this->components->info('Publishing configuration...');
 
-        $this->call('vendor:publish', ['--tag' => 'controllers']);
+        $this->callSilently('vendor:publish', array_filter([
+            '--tag' => 'auth-tracker-config',
+            '--force' => $this->option('force'),
+        ]));
 
-        $this->line('');
-        $this->comment('Publishing views...');
+        $this->components->info('Publishing migrations...');
 
-        $this->call('vendor:publish', ['--tag' => 'views']);
+        $this->callSilently('vendor:publish', ['--tag' => 'auth-tracker-migrations']);
 
-        $this->line('');
-        $this->comment('Adding routes in web.php...');
+        $this->newLine();
+        $this->components->info('Auth Tracker installed.');
 
-        file_put_contents(
-            base_path('routes/web.php'),
-            file_get_contents(__DIR__.'/../routes.stub'),
-            FILE_APPEND
-        );
+        $this->components->bulletList([
+            'Run "php artisan migrate".',
+            'Add the Alshahari\AuthTracker\Traits\AuthTracking trait to your authenticatable models.',
+            'Use the "eloquent-tracked" user provider driver in config/auth.php to track remembered sessions.',
+        ]);
 
-        $this->line('');
-        $this->info('Auth Tracker installed!');
+        return self::SUCCESS;
     }
 }

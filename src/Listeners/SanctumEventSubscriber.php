@@ -2,59 +2,56 @@
 
 namespace Alshahari\AuthTracker\Listeners;
 
+use Alshahari\AuthTracker\AuthTracker;
+use Alshahari\AuthTracker\Events\Login as LoginTracked;
 use Alshahari\AuthTracker\Events\PersonalAccessTokenCreated;
 use Alshahari\AuthTracker\Factories\LoginFactory;
 use Alshahari\AuthTracker\RequestContext;
 use Carbon\Carbon;
+use Illuminate\Events\Dispatcher;
 
+/**
+ * Tracks Sanctum personal access tokens.
+ */
 class SanctumEventSubscriber
 {
-    public function handlePersonalAccessTokenCreation(PersonalAccessTokenCreated $event)
+    public function handlePersonalAccessTokenCreation(PersonalAccessTokenCreated $event): void
     {
-        // Get the authenticated user
         $user = $event->personalAccessToken->tokenable;
 
-        if ($this->tracked($user)) {
-
-            // Get as much information as possible about the request
-            $context = new RequestContext;
-
-            // Build a new login
-            $login = LoginFactory::build($event, $context);
-
-            // Set the expiration date
-            if ($minutes = config('sanctum.expiration')) {
-                $login->expiresAt(Carbon::now()->addMinutes($minutes));
-            }
-
-            // Attach the login to the user and save it
-            $user->logins()->save($login);
-
-            event(new \Alshahari\AuthTracker\Events\Login($user, $context));
+        if (! $user || ! AuthTracker::isTracked($user)) {
+            return;
         }
-    }
 
-    /**
-     * Tracking enabled for this user?
-     *
-     * @param \Illuminate\Contracts\Auth\Authenticatable $user
-     * @return bool
-     */
-    protected function tracked($user)
-    {
-        return in_array('Alshahari\AuthTracker\Traits\AuthTracking', class_uses($user));
+        $context = new RequestContext;
+
+        $login = LoginFactory::build($event, $context);
+
+        if ($expiresAt = $event->personalAccessToken->expires_at) {
+            $login->expiresAt($expiresAt);
+        } elseif ($minutes = config('sanctum.expiration')) {
+            $login->expiresAt(Carbon::now()->addMinutes((int) $minutes));
+        }
+
+        $user->logins()->save($login);
+
+        if ($context->device) {
+            $context->device->deviceable()->associate($user);
+            $context->device->save();
+        }
+
+        event(new LoginTracked($user, $context));
     }
 
     /**
      * Register the listeners for the subscriber.
      *
-     * @param  \Illuminate\Events\Dispatcher  $events
+     * @return array<class-string, string>
      */
-    public function subscribe($events)
+    public function subscribe(Dispatcher $events): array
     {
-        $events->listen(
-            'alshahari\AuthTracker\Events\PersonalAccessTokenCreated',
-            'alshahari\AuthTracker\Listeners\SanctumEventSubscriber@handlePersonalAccessTokenCreation'
-        );
+        return [
+            PersonalAccessTokenCreated::class => 'handlePersonalAccessTokenCreation',
+        ];
     }
 }

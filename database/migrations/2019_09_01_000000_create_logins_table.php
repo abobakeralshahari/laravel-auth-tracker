@@ -32,7 +32,7 @@ class CreateLoginsTable extends Migration
             $table->string('oauth_access_token_id')->nullable();
             $table->unsignedBigInteger('personal_access_token_id')->nullable();
 
-            $table->expirable('expires_at');
+            $table->timestamp('expires_at')->nullable();
             $table->softDeletes();
             
             $table->bigInteger('device_id')->unsigned()->index()->nullable();

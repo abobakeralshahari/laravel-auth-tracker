@@ -2,65 +2,43 @@
 
 namespace Alshahari\AuthTracker\Factories;
 
-use Alshahari\AuthTracker\Parsers\Agent;
-use Alshahari\AuthTracker\Parsers\WhichBrowser;
+use Alshahari\AuthTracker\Middleware\StoreDevice;
+use Alshahari\AuthTracker\Models\Device;
 use Alshahari\AuthTracker\Services\DeviceService;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 use Illuminate\Validation\UnauthorizedException;
 
 class DeviceFactory
 {
     /**
-     * Build a new .
+     * Resolve the device of the given request, creating it when unknown.
      *
-     * @param string
-     * @return 
-     * @throws 
+     * The device is resolved once per request and cached in the request
+     * attributes, so middleware and listeners share the same instance.
+     *
+     * @throws UnauthorizedException
      */
-    public static function build($isRequired = false)
+    public static function build(bool $isRequired = false, ?Request $request = null): Device
     {
+        $request = $request ?? request();
 
-        $request =request();
-     //$deviceUdid = $request->header('X-Device-UDID');
-       $deviceUdid = $request->header('x-device-udid');
-//       Log::info('DeviceFactory device id=>'.$deviceUdid);
-//        if(empty($deviceUdid) || $deviceUdid == null){
-//            $deviceUdid = $request->header('X-Device-UDID');
-//        }
-
-        if (empty($deviceUdid) && ! $isRequired) {
-            // We continue on
-            $rep = new DeviceService();
-            $rep->setHeader();
-//            $rep->saveDevice();
-            $deviceUdid=$rep->getDeviceId();
-            $device= $rep->saveDevice();
-            return $device;
+        if ($cached = $request->attributes->get(StoreDevice::REQUEST_KEY)) {
+            return $cached;
         }
 
-        if (empty($deviceUdid) && $isRequired) {
+        $udid = $request->header(config('auth_tracker.device.header_prefix', 'x-device-').'udid');
+
+        if (empty($udid) && $isRequired) {
             throw new UnauthorizedException('You need to specify your device details.');
         }
 
-       // dd($deviceUdid);
-        // We save the device details
-        $device = app(config('auth_tracker.device_model'))->query()->where([
-            'udid' => $deviceUdid,
-        ])->first();
+        $service = new DeviceService($request);
+        $service->setHeader();
 
-        if($device == null){
-            $rep = new DeviceService();
-            $rep->setHeader();
-            $device= $rep->saveDevice();
-            $deviceUdid=$rep->getDeviceId();
+        $device = $service->saveDevice();
 
-        //    $device=$rep->hasDeviceId($deviceUdid);
-        }
+        $request->attributes->set(StoreDevice::REQUEST_KEY, $device);
 
-//        $request->device = $device;
-//
-//        $request->guard = $guard ?? config('auth.defaults.guard');
-        
-        return  $device;
+        return $device;
     }
 }

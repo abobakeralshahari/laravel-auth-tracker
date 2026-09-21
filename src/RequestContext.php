@@ -8,125 +8,68 @@ use Alshahari\AuthTracker\Factories\ParserFactory;
 use Alshahari\AuthTracker\Interfaces\IpProvider;
 use Alshahari\AuthTracker\Interfaces\UserAgentParser;
 use Alshahari\AuthTracker\Models\Device;
-use Alshahari\AuthTracker\Services\DeviceService;
-use Illuminate\Support\Facades\Log;
-use Jenssegers\Agent\Agent;
+use Illuminate\Http\Request;
 
+/**
+ * Everything we know about the request that produced a login.
+ */
 class RequestContext
 {
-    /**
-     * @var UserAgentParser $parser
-     */
-    protected $parser;
+    protected UserAgentParser $parser;
 
-    /**
-     * @var Device $device
-     */
-    public $device;
-    
-    /**
-     * @var IpProvider $ipProvider
-     */
-    protected $ipProvider = null;
+    protected ?IpProvider $ipProvider = null;
 
-    /**
-     * @var string $userAgent
-     */
-    public $userAgent;
+    public ?Device $device = null;
 
-    /**
-     * @var string|null $ip
-     */
-    public $ip;
-    
-    public $loginBy;
-    public $loginFrom;
-    public $deviceUdid;
+    public ?string $userAgent;
 
-    /**
-     * RequestContext constructor.
-     *
-     * @throws \Exception|\GuzzleHttp\Exception\GuzzleException
-     */
-    public function __construct()
+    public ?string $ip;
+
+    public ?string $loginBy;
+
+    public ?string $loginFrom;
+
+    public ?string $deviceUdid = null;
+
+    public function __construct(?Request $request = null)
     {
-        // Initialize the parser
+        $request = $request ?? request();
+
         $this->parser = ParserFactory::build(config('auth_tracker.parser'));
-        $this->device = DeviceFactory::build();
-
-//        Log::info('loginFactory_Request device Model =>');
-//        Log::info($this->device);
-
-        // Initialize the IP provider
         $this->ipProvider = IpProviderFactory::build(config('auth_tracker.ip_lookup.provider'));
 
-        $this->userAgent = request()->userAgent();
-        $this->ip = request()->ip();
-        //
-        $this->loginBy = request()->has('login_by')?request()->get('login_by'):'other';
+        $this->userAgent = $request->userAgent();
+        $this->ip = $request->ip();
+        $this->loginBy = $request->input('login_by', 'other');
 
-        if( request()->hasHeader('x-device-app-type')){
+        $this->device = DeviceFactory::build(false, $request);
+        $this->deviceUdid = $this->device->udid;
 
-            $this->loginFrom = request()->header('x-device-app-type');
-        }else{
-
-            $agent = new Agent();
-            $login_from='other';
-            if ($agent->isDesktop()) {
-                $login_from = 'web_pc';
-            }
-            if ($agent->isMobile()) {
-                $login_from = 'web_mobile';
-            }
-            if ($agent->isTablet()) {
-                $login_from = 'web_tablet';
-            }
-            $this->loginFrom = request()->has('login_from')?request()->get('login_from'): $login_from;
-        }
-
-        if( request()->hasHeader('x-device-udid')){
-
-            $this->deviceUdid = request()->header('x-device-udid');
-
-//            Log::info('loginFactory_Request device id=>'.$this->deviceUdid);
-        }else{
-
-            $rep = new DeviceService();
-            $rep->setHeader();
-            $rep->saveDevice();
-            $Udid=$rep->getDeviceId();
-            $this->deviceUdid=$Udid;
-        }
-
+        $appTypeHeader = config('auth_tracker.device.header_prefix', 'x-device-').'app-type';
+        $this->loginFrom = $request->header($appTypeHeader)
+            ?: $request->input('login_from', $this->device->app_type ?? 'other');
     }
 
     /**
      * Get the parser used to parse the User-Agent header.
-     *
-     * @return UserAgentParser
      */
-    public function parser()
+    public function parser(): UserAgentParser
     {
         return $this->parser;
     }
 
     /**
-     * Get the parser used to parse the User-Agent header.
-     *
-     * @return Device
+     * Get the device of the request.
      */
-    public function device()
+    public function device(): ?Device
     {
-        return $this->device();
+        return $this->device;
     }
-    
-    
+
     /**
      * Get the IP lookup result.
-     *
-     * @return IpProvider
      */
-    public function ip()
+    public function ip(): ?IpProvider
     {
         if ($this->ipProvider && $this->ipProvider->getResult()) {
             return $this->ipProvider;

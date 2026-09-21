@@ -5,83 +5,82 @@ namespace Alshahari\AuthTracker\Traits;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Laravel\Sanctum\PersonalAccessToken;
 
 trait ManagesLogins
 {
     /**
      * Destroy the given session id.
      *
-     * @param int $sessionId
+     * @param  string  $sessionId
      * @return void
      */
     protected function destroySession($sessionId)
     {
-        if ($sessionId === session()->getId()) {
+        $request = app()->bound('request') ? request() : null;
+
+        if ($request && $request->hasSession() && $sessionId === $request->session()->getId()) {
             Auth::logout();
-            session()->invalidate();
-        } else {
-            session()->getHandler()->destroy($sessionId);
+            $request->session()->invalidate();
+
+            return;
         }
+
+        session()->getHandler()->destroy($sessionId);
     }
 
     /**
      * Revoke the given Passport access token ids.
      *
-     * @param Collection|array|int $accessTokenIds
+     * @param  Collection|array|string  $accessTokenIds
      * @return void
      */
     protected function revokePassportTokens($accessTokenIds)
     {
-        // Support for collections
-        if ($accessTokenIds instanceof Collection) {
-            $accessTokenIds = $accessTokenIds->all();
+        $accessTokenIds = $this->normalizeIds($accessTokenIds, func_get_args());
+
+        if (empty($accessTokenIds)) {
+            return;
         }
 
-        // Convert parameters into an array if needed
-        $accessTokenIds = is_array($accessTokenIds) ? $accessTokenIds : func_get_args();
+        $connection = DB::connection(config('auth_tracker.connection'));
 
-        if (! empty($accessTokenIds)) {
-            // Revoke refresh tokens
-            DB::connection(config('auth_tracker.connection','mysql'))->table('oauth_refresh_tokens')
-                ->whereIn('access_token_id', $accessTokenIds)
-                ->update(['revoked' => true]);
+        $connection->table('oauth_refresh_tokens')
+            ->whereIn('access_token_id', $accessTokenIds)
+            ->update(['revoked' => true]);
 
-            // Revoke access tokens
-            DB::connection(config('auth_tracker.connection','mysql'))->table('oauth_access_tokens')
-                ->whereIn('id', $accessTokenIds)
-                ->update(['revoked' => true]);
-
-//
-//            return $this->logins()
-//                ->where('oauth_access_token_id', $this->token()->id)
-//                ->first();
-
-
-        }
+        $connection->table('oauth_access_tokens')
+            ->whereIn('id', $accessTokenIds)
+            ->update(['revoked' => true]);
     }
 
     /**
      * Revoke the given Sanctum personal access token ids.
      *
-     * @param Collection|array|int $personalAccessTokenIds
+     * @param  Collection|array|int  $personalAccessTokenIds
      * @return void
      */
     protected function revokeSanctumTokens($personalAccessTokenIds)
     {
-        // Support for collections
-        if ($personalAccessTokenIds instanceof Collection) {
-            $personalAccessTokenIds = $personalAccessTokenIds->all();
+        $personalAccessTokenIds = $this->normalizeIds($personalAccessTokenIds, func_get_args());
+
+        if (empty($personalAccessTokenIds) || ! class_exists(\Laravel\Sanctum\Sanctum::class)) {
+            return;
         }
 
-        // Convert parameters into an array if needed
-        $personalAccessTokenIds = is_array($personalAccessTokenIds) ? $personalAccessTokenIds : func_get_args();
+        $model = \Laravel\Sanctum\Sanctum::$personalAccessTokenModel;
 
-        if (! empty($personalAccessTokenIds)) {
-            PersonalAccessToken::whereIn('id', $personalAccessTokenIds)
-                ->delete();
-        }
+        $model::whereIn('id', $personalAccessTokenIds)->delete();
     }
-    
-    
+
+    /**
+     * Accept a collection, an array or a variadic list of ids.
+     */
+    private function normalizeIds($ids, array $args): array
+    {
+        if ($ids instanceof Collection) {
+            return $ids->all();
+        }
+
+        return is_array($ids) ? $ids : $args;
+    }
 }

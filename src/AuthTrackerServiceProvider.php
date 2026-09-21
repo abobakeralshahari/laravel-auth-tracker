@@ -3,6 +3,9 @@
 namespace Alshahari\AuthTracker;
 
 use Alshahari\AuthTracker\Factories\IpProviderFactory;
+use Alshahari\AuthTracker\Listeners\AuthEventSubscriber;
+use Alshahari\AuthTracker\Listeners\PassportEventSubscriber;
+use Alshahari\AuthTracker\Listeners\SanctumEventSubscriber;
 use Alshahari\AuthTracker\Macros\RouteMacros;
 use Alshahari\AuthTracker\Middleware\StoreDevice;
 use Illuminate\Support\Facades\Auth;
@@ -15,64 +18,79 @@ class AuthTrackerServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
-        // Merge default config
-        $this->mergeConfigFrom(
-            __DIR__.'/../config/auth_tracker.php', 'auth_tracker'
-        );
+        $this->mergeConfigFrom(__DIR__.'/../config/auth_tracker.php', 'auth_tracker');
 
-        // Register commands
-        $this->commands([
-            Commands\InstallCommand::class,
-        ]);
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                Commands\InstallCommand::class,
+            ]);
+        }
     }
 
     /**
      * Bootstrap services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
+        $this->registerPublishables();
+        $this->registerAuth();
+        $this->registerRouting();
+        $this->registerBlade();
+    }
 
-        // Publish config
+    protected function registerPublishables(): void
+    {
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+
+        if (! $this->app->runningInConsole()) {
+            return;
+        }
+
+        // "config" tag kept for backward compatibility.
+        foreach (['auth-tracker-config', 'config'] as $tag) {
+            $this->publishes([
+                __DIR__.'/../config/auth_tracker.php' => config_path('auth_tracker.php'),
+            ], $tag);
+        }
+
         $this->publishes([
-            __DIR__.'/../config/auth_tracker.php' => config_path('auth_tracker.php'),
-        ], 'config');
+            __DIR__.'/../database/migrations' => database_path('migrations'),
+        ], 'auth-tracker-migrations');
+    }
 
-
-
-        // Load migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
-
-        // Register extended Eloquent user provider
+    protected function registerAuth(): void
+    {
         Auth::provider('eloquent-tracked', function ($app, array $config) {
             return new EloquentUserProviderExtended($app['hash'], $config['model']);
         });
 
-        // Register event subscribers
-        Event::subscribe('Alshahari\AuthTracker\Listeners\PassportEventSubscriber');
-        Event::subscribe('Alshahari\AuthTracker\Listeners\AuthEventSubscriber');
-        Event::subscribe('Alshahari\AuthTracker\Listeners\SanctumEventSubscriber');
+        Event::subscribe(AuthEventSubscriber::class);
 
+        if (class_exists(\Laravel\Passport\Passport::class)) {
+            Event::subscribe(PassportEventSubscriber::class);
+        }
 
+        if (class_exists(\Laravel\Sanctum\Sanctum::class)) {
+            Event::subscribe(SanctumEventSubscriber::class);
+        }
+    }
 
-        // Register middleware
-        $router = $this->app['router'];
-        $router->aliasMiddleware('store.device', StoreDevice::class);
-        
-        // Register route macros
+    protected function registerRouting(): void
+    {
+        $this->app['router']->aliasMiddleware('store.device', StoreDevice::class);
+
         Route::mixin(new RouteMacros);
+    }
 
-        
-        // Register Blade directives
+    protected function registerBlade(): void
+    {
         Blade::if('tracked', function () {
-            return method_exists(request()->user(), 'logins');
+            return AuthTracker::isTracked(request()->user());
         });
+
         Blade::if('ipLookup', function () {
             return IpProviderFactory::ipLookupEnabled();
         });

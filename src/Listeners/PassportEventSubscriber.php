@@ -2,90 +2,94 @@
 
 namespace Alshahari\AuthTracker\Listeners;
 
+use Alshahari\AuthTracker\AuthTracker;
+use Alshahari\AuthTracker\Events\Login as LoginTracked;
 use Alshahari\AuthTracker\Factories\LoginFactory;
 use Alshahari\AuthTracker\RequestContext;
-use Carbon\Carbon;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Events\Dispatcher;
 use Laravel\Passport\Events\AccessTokenCreated;
-use Laravel\Passport\Token;
-use mysql_xdevapi\Exception;
+use Laravel\Passport\Passport;
+use Throwable;
 
+/**
+ * Tracks Passport access tokens.
+ */
 class PassportEventSubscriber
 {
-    public function handleAccessTokenCreation(AccessTokenCreated $event)
+    public function handleAccessTokenCreation(AccessTokenCreated $event): void
     {
+        $user = $this->resolveUser($event);
 
-
-        // Get the created access token
-        $accessToken = Token::find($event->tokenId);
-        // Get the authenticated user
-        $provider = config('auth.guards.api.provider');
-        $userModel = config('auth.providers.' . $provider . '.model');
-        $user = call_user_func([$userModel, 'find'], $accessToken->user_id);
-
-        if ($this->tracked($user)) {
-            // Get as much information as possible about the request
-            $context = new RequestContext;
-            // Build a new login
-            $login = LoginFactory::build($event, $context);
-            // Set the expiration date
-            $login->expiresAt($accessToken->expires_at);
-            // Attach the login to the user and save it
-            $user->logins()->save($login);
-
-            try {
-                if ($context->device) {
-                    $context->device->deviceable()->associate($user);
-                    $context->device->save();
-                }
-            } catch (Exception $E) {
-                report($e);
-            }
-
-            if (request()->input('grant_type') !== 'refresh_token') {
-                event(new \Alshahari\AuthTracker\Events\Login($user, $context));
-            }
+        if (! $user || ! AuthTracker::isTracked($user)) {
+            return;
         }
 
-    }
+        $context = new RequestContext;
 
-    public function handleSuccessfulLogout($event)
-    {
-        if ($this->tracked($event->user)) {
+        $login = LoginFactory::build($event, $context);
 
-            // Delete login
-            //            $event->user->logins()->where('session_id', session()->getId())
-            //                ->delete();
+        $login->expiresAt(Passport::token()->newQuery()->find($event->tokenId)?->expires_at);
 
-            $date=Carbon::now()->toDateTimeString();
-            $event->user->logins()->where('oauth_access_token_id', session()->getId())
-                ->update(['cleared_by_user'=>true,'logout_at'=>$date]);
+        $user->logins()->save($login);
+
+        $this->attachDevice($context, $user);
+
+        if (request()->input('grant_type') !== 'refresh_token') {
+            event(new LoginTracked($user, $context));
         }
     }
+
     /**
-     * Tracking enabled for this user?
-     *
-     * @param \Illuminate\Contracts\Auth\Authenticatable $user
-     * @return bool
+     * Resolve the owner of the token from the client's user provider, or
+     * from the configured Passport guards.
      */
-    protected function tracked($user)
+    protected function resolveUser(AccessTokenCreated $event): ?Authenticatable
     {
-        if ($user) {
-            return in_array('Alshahari\AuthTracker\Traits\AuthTracking', class_uses($user));
+        if (! $event->userId) {
+            return null; // client credentials grant
         }
-        return false;
+
+        $client = Passport::client()->newQuery()->find($event->clientId);
+
+        $providers = array_filter([$client?->provider]);
+
+        foreach ((array) config('auth_tracker.passport_guards', ['api']) as $guard) {
+            $providers[] = config("auth.guards.{$guard}.provider");
+        }
+
+        foreach (array_unique(array_filter($providers)) as $provider) {
+            if ($model = config("auth.providers.{$provider}.model")) {
+                return $model::query()->find($event->userId);
+            }
+        }
+
+        return null;
+    }
+
+    protected function attachDevice(RequestContext $context, Authenticatable $user): void
+    {
+        if (! $context->device) {
+            return;
+        }
+
+        try {
+            $context->device->deviceable()->associate($user);
+            $context->device->save();
+        } catch (Throwable $e) {
+            report($e);
+        }
     }
 
     /**
      * Register the listeners for the subscriber.
      *
-     * @param \Illuminate\Events\Dispatcher $events
+     * @return array<class-string, string>
      */
-    public function subscribe($events)
+    public function subscribe(Dispatcher $events): array
     {
-
-        $events->listen(
-            'Laravel\Passport\Events\AccessTokenCreated',
-            'Alshahari\AuthTracker\Listeners\PassportEventSubscriber@handleAccessTokenCreation'
-        );
+        return [
+            AccessTokenCreated::class => 'handleAccessTokenCreation',
+        ];
     }
 }

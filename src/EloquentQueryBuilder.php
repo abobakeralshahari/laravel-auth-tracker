@@ -2,39 +2,36 @@
 
 namespace Alshahari\AuthTracker;
 
+use Alshahari\AuthTracker\QueryBuilders\ExpirableEloquentQueryBuilder;
 use Alshahari\AuthTracker\Traits\ManagesLogins;
-use Illuminate\Database\Eloquent\Builder;
 
-class EloquentQueryBuilder extends Builder
+class EloquentQueryBuilder extends ExpirableEloquentQueryBuilder
 {
     use ManagesLogins;
 
     /**
-     * Revoke the logins.
+     * Revoke the logins matching the query: destroy the sessions, revoke
+     * the tokens and mark the logins as cleared (kept for history).
      *
-     * @return mixed
+     * @return int  Number of revoked logins.
      */
     public function revoke()
     {
         $logins = $this->get();
 
-        if ($logins->isNotEmpty()) {
-
-            // Destroy sessions
-            foreach ($logins->pluck('session_id')->filter() as $sessionId) {
-                $this->destroySession($sessionId);
-            }
-
-            // Revoke Passport tokens
-            $this->revokePassportTokens($logins->pluck('oauth_access_token_id')->filter());
-
-            // Revoke Sanctum tokens
-            $this->revokeSanctumTokens($logins->pluck('personal_access_token_id')->filter());
-
-            // Delete logins
-            return $this->delete();
+        if ($logins->isEmpty()) {
+            return 0;
         }
 
-        return false;
+        foreach ($logins->pluck('session_id')->filter() as $sessionId) {
+            $this->destroySession($sessionId);
+        }
+
+        $this->revokePassportTokens($logins->pluck('oauth_access_token_id')->filter());
+        $this->revokeSanctumTokens($logins->pluck('personal_access_token_id')->filter());
+
+        return $this->model->newQueryWithoutScopes()
+            ->whereKey($logins->modelKeys())
+            ->update(['cleared_by_user' => true, 'logout_at' => now(), 'remember_token' => null]);
     }
 }

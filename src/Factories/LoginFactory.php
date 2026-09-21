@@ -2,82 +2,61 @@
 
 namespace Alshahari\AuthTracker\Factories;
 
+use Alshahari\AuthTracker\AuthTracker;
 use Alshahari\AuthTracker\Events\PersonalAccessTokenCreated;
 use Alshahari\AuthTracker\Models\Login;
-use alshahari\AuthTracker\RequestContext;
+use Alshahari\AuthTracker\RequestContext;
 use Illuminate\Auth\Events\Login as LoginEvent;
 use Laravel\Passport\Events\AccessTokenCreated;
 
 class LoginFactory
 {
     /**
-     * Build a new Login.
+     * Build a new (unsaved) Login from an auth event and its request context.
      *
-     * @param LoginEvent|AccessTokenCreated $event
-     * @param RequestContext $context
-     * @return Login
+     * @param  LoginEvent|AccessTokenCreated|PersonalAccessTokenCreated  $event
      */
-    public static function build($event, RequestContext $context)
+    public static function build($event, RequestContext $context): Login
     {
+        $model = AuthTracker::loginModel();
 
-
-        $login = new Login();
-        // Common attributes ------------------------------------------------------------------
+        /** @var Login $login */
+        $login = new $model;
 
         $login->fill([
             'user_agent' => $context->userAgent,
-            'device_udid' => $context->deviceUdid,
             'ip' => $context->ip,
             'login_by' => $context->loginBy,
             'login_from' => $context->loginFrom,
             'device_type' => $context->parser()->getDeviceType(),
-            'device' => $context->parser()->getDevice(),
+            'device_name' => $context->parser()->getDevice(),
             'platform' => $context->parser()->getPlatform(),
             'browser' => $context->parser()->getBrowser(),
+            'device_id' => $context->device?->getKey(),
         ]);
 
-        // If we have the IP geolocation data
-        if ($context->ip()) {
+        if ($ip = $context->ip()) {
             $login->fill([
-                'city' => $context->ip()->getCity(),
-                'region' => $context->ip()->getRegion(),
-                'country' => $context->ip()->getCountry(),
+                'city' => $ip->getCity(),
+                'region' => $ip->getRegion(),
+                'country' => $ip->getCountry(),
             ]);
 
-            // Custom additional data?
-            if (method_exists($context->ip(), 'getCustomData') &&
-                $context->ip()->getCustomData()) {
-
-                $login->ip_data = $context->ip()->getCustomData();
+            if (method_exists($ip, 'getCustomData') && $ip->getCustomData()) {
+                $login->ip_data = $ip->getCustomData();
             }
         }
 
-
-        // If we have the Device
-        if ($context->device) {
-            $login->fill([
-                'device_id'=>$context->device->id,
-            ]);
-        }
-        // Specific attributes ----------------------------------------------------------------
-
         if ($event instanceof AccessTokenCreated) {
-
             $login->oauth_access_token_id = $event->tokenId;
-
         } elseif ($event instanceof PersonalAccessTokenCreated) {
-
-            $login->personal_access_token_id = $event->personalAccessToken->id;
-
+            $login->personal_access_token_id = $event->personalAccessToken->getKey();
         } else {
-
             $login->fill([
                 'session_id' => session()->getId(),
                 'remember_token' => $event->remember ? $event->user->getRememberToken() : null,
             ]);
-
         }
-        // ------------------------------------------------------------------------------------
 
         return $login;
     }

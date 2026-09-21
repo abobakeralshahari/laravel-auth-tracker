@@ -2,45 +2,89 @@
 
 namespace Alshahari\AuthTracker\Models;
 
+use Alshahari\AuthTracker\AuthTracker;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Device extends Model
 {
+    use SoftDeletes;
+
+    /**
+     * The attributes that aren't mass assignable.
+     *
+     * @var array
+     */
     protected $guarded = [];
 
-    public function __construct()
-    {
-//        $this->setTable(config('auth_tracker.table_name'));
-        $this->setConnection(config('auth_tracker.connection'));
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'metadata' => 'array',
+        'last_seen_at' => 'datetime',
+    ];
 
+    /**
+     * Create a new Eloquent model instance.
+     *
+     * @param  array  $attributes
+     * @return void
+     */
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->setTable(config('auth_tracker.devices_table', 'devices'));
+
+        if ($connection = config('auth_tracker.connection')) {
+            $this->setConnection($connection);
+        }
     }
-    
-    public function deviceable()
+
+    /**
+     * The last authenticatable that used this device.
+     */
+    public function deviceable(): MorphTo
     {
         return $this->morphTo();
     }
 
+    /**
+     * All the logins made from this device.
+     */
     public function logins(): HasMany
     {
-//        $model = config('auth-checker.models.login') ?? Login::class;
-        $model = Login::class;
-        return $this->hasMany($model,'device_id','id');
-
+        return $this->hasMany(AuthTracker::loginModel(), 'device_id');
     }
 
+    /**
+     * The most recent login made from this device.
+     */
     public function login(): HasOne
     {
-//        $model = config('auth-checker.models.login') ?? Login::class;
-        $model =  Login::class;
-        $relation = $this->hasOne($model);
-        $relation->orderBy('created_at', 'desc');
-        return $relation;
+        return $this->hasOne(AuthTracker::loginModel(), 'device_id')->latestOfMany();
     }
 
-//    public function user(): MorphTo
-//    {
-//        return $this->morphTo();
-//    }
-    
+    /**
+     * Update the attributes without overwriting existing values with nulls.
+     *
+     * Requests coming from a web browser do not send the device headers,
+     * so a plain update would erase data (like the FCM token) sent earlier
+     * by the mobile application.
+     *
+     * @param  array  $attributes
+     * @return bool
+     */
+    public function mergeAttributes(array $attributes): bool
+    {
+        $attributes = array_filter($attributes, fn ($value) => $value !== null && $value !== '');
+
+        return $this->forceFill($attributes)->save();
+    }
 }

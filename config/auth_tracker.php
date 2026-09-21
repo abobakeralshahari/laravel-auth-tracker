@@ -68,11 +68,83 @@ return [
     | Per-model options. Keys are the authenticatable classes (subclasses
     | match too).
     |
-    | App\Models\Admin::class => ['max_sessions' => 1, 'on_exceed' => 'revoke_oldest'],
+    | max_sessions:  null for unlimited.
+    | on_exceed:     revoke_oldest | reject | ask (dispatch SessionLimitExceeded only)
+    | scope:         per_guard | global
+    |
+    | App\Models\Admin::class => ['max_sessions' => 1, 'on_exceed' => 'reject'],
     |
     */
 
     'trackables' => [],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Risk Assessment
+    |--------------------------------------------------------------------------
+    |
+    | After each login the package compares it with the previous ones and
+    | dispatches SuspiciousLogin when one of the enabled flags is raised.
+    |
+    */
+
+    'risk' => [
+        'enabled' => true,
+        'flags' => [
+            'new_device' => 30,
+            'new_country' => 40,
+            'impossible_travel' => 60,
+        ],
+        // Score from which SuspiciousLogin is dispatched.
+        'threshold' => 30,
+        // km/h above which a trip between two logins is impossible.
+        'max_speed' => 900,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Failed Attempts
+    |--------------------------------------------------------------------------
+    */
+
+    'attempts' => [
+        'enabled' => true,
+        // Credential keys holding the identifier of the attempt.
+        'identifier_keys' => ['email', 'phone', 'username'],
+        'retention_days' => 90,
+    ],
+
+    'attempts_table' => 'auth_attempts',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sanctum Refresh Tokens
+    |--------------------------------------------------------------------------
+    |
+    | AuthTracker::issueToken() / refreshToken(): short lived access tokens
+    | renewed with a rotating refresh token bound to the login.
+    |
+    */
+
+    'refresh' => [
+        'access_lifetime' => 60,          // minutes
+        'refresh_lifetime' => 60 * 24 * 30, // minutes
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Retention
+    |--------------------------------------------------------------------------
+    |
+    | Used by "tracker:prune": revoked / expired logins older than this are
+    | deleted, as well as devices unseen for "devices_days" without logins.
+    |
+    */
+
+    'retention' => [
+        'logins_days' => 90,
+        'devices_days' => 180,
+    ],
 
     /*
     |--------------------------------------------------------------------------

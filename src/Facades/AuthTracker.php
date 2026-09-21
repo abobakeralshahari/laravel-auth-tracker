@@ -2,6 +2,7 @@
 
 namespace Alshahari\AuthTracker\Facades;
 
+use Alshahari\AuthTracker\Testing\TrackerFake;
 use Alshahari\AuthTracker\TrackerManager;
 use Illuminate\Support\Facades\Facade;
 
@@ -32,12 +33,30 @@ use Illuminate\Support\Facades\Facade;
  * @method static void renameDevice(\Alshahari\AuthTracker\Models\Device $device, string $name)
  * @method static int forgetDevice(\Alshahari\AuthTracker\Models\Device $device)
  * @method static \Alshahari\AuthTracker\Models\Device|null currentDevice()
+ * @method static void trustDevice(\Alshahari\AuthTracker\Models\Device $device, \Carbon\CarbonInterval|null $for = null)
+ * @method static void untrustDevice(\Alshahari\AuthTracker\Models\Device $device)
+ * @method static bool isTrustedDevice(\Alshahari\AuthTracker\Models\Device|null $device = null, \Illuminate\Contracts\Auth\Authenticatable|null $user = null)
+ * @method static int blockDevice(\Alshahari\AuthTracker\Models\Device $device, string $reason = 'security')
+ * @method static void unblockDevice(\Alshahari\AuthTracker\Models\Device $device)
+ * @method static void forgetCurrent()
+ * @method static void routes(string $prefix = 'auth-tracker', array|string $middleware = ['auth'], array|null $only = null, array|null $except = null, string $name = 'auth-tracker.')
+ * @method static \Alshahari\AuthTracker\Support\IssuedToken issueToken(\Illuminate\Contracts\Auth\Authenticatable $user, string $name = 'api', array $abilities = ['*'], string|null $guard = null)
+ * @method static \Alshahari\AuthTracker\Support\IssuedToken refreshToken(string $refreshToken)
+ * @method static array driverNames()
  *
  * @see \Alshahari\AuthTracker\TrackerManager
  * @see \Alshahari\AuthTracker\SessionManager
  */
 class AuthTracker extends Facade
 {
+    /**
+     * Record the package events for assertions (tracking stays active).
+     */
+    public static function fake(): TrackerFake
+    {
+        return TrackerFake::install(static::$app);
+    }
+
     protected static function getFacadeAccessor(): string
     {
         return TrackerManager::class;

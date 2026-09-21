@@ -7,8 +7,10 @@ use Alshahari\AuthTracker\Drivers\PassportDriver;
 use Alshahari\AuthTracker\Drivers\SanctumDriver;
 use Alshahari\AuthTracker\Drivers\SessionDriver;
 use Alshahari\AuthTracker\Support\DeviceSignal;
+use Alshahari\AuthTracker\Support\IssuedToken;
 use Alshahari\AuthTracker\Traits\AuthTracking;
 use Closure;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Manager;
 use InvalidArgumentException;
@@ -235,6 +237,46 @@ class TrackerManager extends Manager
     public function sessions(): SessionManager
     {
         return $this->container->make(SessionManager::class);
+    }
+
+    /**
+     * Register the "my sessions / my devices" API routes.
+     *
+     * AuthTracker::routes(prefix: 'account/security', middleware: ['auth:sanctum']);
+     *
+     * @param  list<string>|null  $only
+     * @param  list<string>|null  $except
+     */
+    public function routes(
+        string $prefix = 'auth-tracker',
+        array|string $middleware = ['auth'],
+        ?array $only = null,
+        ?array $except = null,
+        string $name = 'auth-tracker.',
+    ): void {
+        $this->container->make(Http\RouteRegistrar::class)->register($prefix, $middleware, $only, $except, $name);
+    }
+
+    // ------------------------------------------------------------------
+    //  Refreshable Sanctum tokens
+    // ------------------------------------------------------------------
+
+    /**
+     * Issue a short lived access token with a rotating refresh token.
+     *
+     * @param  list<string>  $abilities
+     */
+    public function issueToken(Authenticatable $user, string $name = 'api', array $abilities = ['*'], ?string $guard = null): IssuedToken
+    {
+        return $this->container->make(TokenIssuer::class)->issue($user, $name, $abilities, $guard);
+    }
+
+    /**
+     * @throws \Alshahari\AuthTracker\Exceptions\InvalidRefreshTokenException
+     */
+    public function refreshToken(string $refreshToken): IssuedToken
+    {
+        return $this->container->make(TokenIssuer::class)->refresh($refreshToken);
     }
 
     /**

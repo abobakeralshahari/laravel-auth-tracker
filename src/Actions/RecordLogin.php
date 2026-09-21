@@ -16,8 +16,11 @@ use Illuminate\Contracts\Auth\Authenticatable;
  */
 class RecordLogin
 {
-    public function __construct(protected TrackerManager $tracker)
-    {
+    public function __construct(
+        protected TrackerManager $tracker,
+        protected EnforceSessionLimit $limiter,
+        protected AssessRisk $risk,
+    ) {
     }
 
     /**
@@ -41,6 +44,11 @@ class RecordLogin
         $user->logins()->save($login);
 
         $this->attachDevice($context, $user);
+
+        // May revoke the new login and throw (on_exceed = reject).
+        $this->limiter->execute($user, $login);
+
+        $this->risk->execute($user, $login);
 
         event(new SessionStarted($user, $login, $context));
         event(new LegacyLoginEvent($user, $context));
@@ -106,6 +114,11 @@ class RecordLogin
                 'region' => $ip->getRegion(),
                 'country' => $ip->getCountry(),
             ];
+
+            if (method_exists($ip, 'getLatitude') && method_exists($ip, 'getLongitude')) {
+                $attributes['latitude'] = $ip->getLatitude();
+                $attributes['longitude'] = $ip->getLongitude();
+            }
 
             if (method_exists($ip, 'getCustomData') && $ip->getCustomData()) {
                 $attributes['ip_data'] = $ip->getCustomData();

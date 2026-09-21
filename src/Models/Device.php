@@ -3,7 +3,10 @@
 namespace Alshahari\AuthTracker\Models;
 
 use Alshahari\AuthTracker\Facades\AuthTracker;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -11,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Device extends Model
 {
-    use SoftDeletes;
+    use HasFactory, Prunable, SoftDeletes;
 
     /**
      * The attributes that aren't mass assignable.
@@ -28,7 +31,15 @@ class Device extends Model
     protected $casts = [
         'metadata' => 'array',
         'last_seen_at' => 'datetime',
+        'trusted_at' => 'datetime',
+        'trusted_until' => 'datetime',
+        'blocked_at' => 'datetime',
     ];
+
+    protected static function newFactory(): \Alshahari\AuthTracker\Database\Factories\DeviceFactory
+    {
+        return \Alshahari\AuthTracker\Database\Factories\DeviceFactory::new();
+    }
 
     /**
      * Create a new Eloquent model instance.
@@ -69,6 +80,33 @@ class Device extends Model
     public function login(): HasOne
     {
         return $this->hasOne(AuthTracker::loginModel(), 'device_id')->latestOfMany();
+    }
+
+    /**
+     * Devices unseen for the retention period, without any login left,
+     * are deleted by "model:prune" / "tracker:prune".
+     */
+    public function prunable(): Builder
+    {
+        return static::withTrashed()
+            ->where('last_seen_at', '<', now()->subDays((int) config('auth_tracker.retention.devices_days', 180)))
+            ->whereNull('blocked_at')
+            ->whereDoesntHave('logins', fn (Builder $query) => $query->withExpired()->withTrashed());
+    }
+
+    /**
+     * Explicitly trusted by its user (e.g. skip the second factor), and
+     * the trust has not expired.
+     */
+    public function isTrusted(): bool
+    {
+        return ! is_null($this->trusted_at)
+            && (is_null($this->trusted_until) || $this->trusted_until->isFuture());
+    }
+
+    public function isBlocked(): bool
+    {
+        return ! is_null($this->blocked_at);
     }
 
     /**

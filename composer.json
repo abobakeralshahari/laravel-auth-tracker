@@ -41,7 +41,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Alshahari\\AuthTracker\\": "src"
+            "Alshahari\\AuthTracker\\": "src",
+            "Alshahari\\AuthTracker\\Database\\Factories\\": "database/factories"
         }
     },
     "autoload-dev": {

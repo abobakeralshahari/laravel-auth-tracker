@@ -7,6 +7,7 @@ use Alshahari\AuthTracker\Listeners\AuthEventSubscriber;
 use Alshahari\AuthTracker\Listeners\PassportEventSubscriber;
 use Alshahari\AuthTracker\Listeners\SanctumEventSubscriber;
 use Alshahari\AuthTracker\Macros\RouteMacros;
+use Alshahari\AuthTracker\Middleware\EnsureDeviceNotBlocked;
 use Alshahari\AuthTracker\Middleware\StoreDevice;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
@@ -30,6 +31,8 @@ class AuthTrackerServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 Commands\InstallCommand::class,
+                Commands\PruneCommand::class,
+                Commands\DoctorCommand::class,
             ]);
         }
     }
@@ -85,6 +88,7 @@ class AuthTrackerServiceProvider extends ServiceProvider
     protected function registerRouting(): void
     {
         $this->app['router']->aliasMiddleware('store.device', StoreDevice::class);
+        $this->app['router']->aliasMiddleware('device.not-blocked', EnsureDeviceNotBlocked::class);
 
         Route::mixin(new RouteMacros);
     }

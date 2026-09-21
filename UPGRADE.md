@@ -146,3 +146,27 @@ AuthTracker::extend('jwt', fn ($app) => new JwtTrackerDriver);
   the same method names.
 - `DeviceService` and `DeviceFactory` are kept as deprecated shims over
   `Support\DeviceSignal` and `Actions\ResolveDevice`.
+
+## 2.2 — Policies, routes and refreshable tokens
+
+Run `php artisan migrate` (`add_policies_to_auth_tracker_tables`).
+
+### New
+
+- `trackables.*.max_sessions` with `on_exceed` (`revoke_oldest`, `reject`,
+  `ask`) and `scope` (`per_guard`, `global`).
+- Trusted / blocked devices: `AuthTracker::trustDevice()`, `isTrustedDevice()`,
+  `blockDevice()`, the `device.not-blocked` middleware.
+- Risk assessment: `risk_score` / `risk_flags` on logins and the
+  `SuspiciousLogin` event.
+- Failed attempts (`auth_attempts` table, `AuthAttemptFailed` event).
+- Refreshable Sanctum tokens: `AuthTracker::issueToken()` / `refreshToken()`.
+- `AuthTracker::routes()` with package controllers and API resources.
+- `tracker:prune`, `tracker:doctor`, `AuthTracker::fake()`, model factories.
+
+### Changed
+
+- `Route::authTracker($prefix)` now registers the package API routes
+  (`auth-tracker.*` names) instead of routes to an application controller
+  that was never published.
+- `tracker:install` registers `PruneCommand` and `DoctorCommand`.

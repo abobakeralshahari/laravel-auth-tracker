@@ -6,7 +6,10 @@ use Alshahari\AuthTracker\Actions\RevokeLogin;
 use Alshahari\AuthTracker\EloquentQueryBuilder;
 use Alshahari\AuthTracker\Facades\AuthTracker;
 use Alshahari\AuthTracker\Traits\Expirable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Login extends Model
 {
-    use Expirable, SoftDeletes;
+    use Expirable, HasFactory, Prunable, SoftDeletes;
 
     const EXPIRES_AT = 'expires_at';
 
@@ -39,6 +42,11 @@ class Login extends Model
         'cleared_by_user' => 'boolean',
         'rotations' => 'integer',
         'ip_data' => 'array',
+        'risk_score' => 'integer',
+        'risk_flags' => 'array',
+        'refresh_expires_at' => 'datetime',
+        'latitude' => 'float',
+        'longitude' => 'float',
     ];
 
     /**
@@ -61,6 +69,9 @@ class Login extends Model
         'oauth_access_token_id',
         'personal_access_token_id',
         'credential_id',
+        'refresh_token_hash',
+        'previous_refresh_token_hash',
+        'refresh_expires_at',
         'expires_at',
         'deleted_at',
         'device_id',
@@ -78,6 +89,11 @@ class Login extends Model
      * @var array
      */
     protected $appends = ['is_current'];
+
+    protected static function newFactory(): \Alshahari\AuthTracker\Database\Factories\LoginFactory
+    {
+        return \Alshahari\AuthTracker\Database\Factories\LoginFactory::new();
+    }
 
     /**
      * Create a new Eloquent model instance.
@@ -235,6 +251,22 @@ class Login extends Model
     public function revokeDelete(): bool
     {
         return $this->markAsRevoked();
+    }
+
+    /**
+     * Revoked or expired logins older than the retention period are
+     * deleted by "model:prune" / "tracker:prune".
+     */
+    public function prunable(): Builder
+    {
+        $before = now()->subDays((int) config('auth_tracker.retention.logins_days', 90));
+
+        return static::withExpired()
+            ->withTrashed()
+            ->where(fn (Builder $query) => $query
+                ->where('revoked_at', '<', $before)
+                ->orWhere('expires_at', '<', $before)
+                ->orWhere('deleted_at', '<', $before));
     }
 
     /**

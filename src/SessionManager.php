@@ -5,8 +5,10 @@ namespace Alshahari\AuthTracker;
 use Alshahari\AuthTracker\Actions\ResolveDevice;
 use Alshahari\AuthTracker\Actions\RevokeLogin;
 use Alshahari\AuthTracker\Drivers\SessionDriver;
+use Alshahari\AuthTracker\Events\DeviceTrusted;
 use Alshahari\AuthTracker\Models\Device;
 use Alshahari\AuthTracker\Models\Login;
+use Carbon\CarbonInterval;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -197,6 +199,61 @@ class SessionManager
     public function renameDevice(Device $device, string $name): void
     {
         $device->forceFill(['name' => $name])->save();
+    }
+
+    /**
+     * Trust the device (skip the second factor, for instance) for a
+     * period, or forever when no period is given.
+     */
+    public function trustDevice(Device $device, ?CarbonInterval $for = null): void
+    {
+        $device->forceFill([
+            'trusted_at' => now(),
+            'trusted_until' => $for ? now()->add($for) : null,
+        ])->save();
+
+        event(new DeviceTrusted($device));
+    }
+
+    public function untrustDevice(Device $device): void
+    {
+        $device->forceFill(['trusted_at' => null, 'trusted_until' => null])->save();
+    }
+
+    /**
+     * Is the device of the current request trusted by the given user?
+     * A device is only trusted for the users that logged in from it.
+     */
+    public function isTrustedDevice(?Device $device = null, ?Authenticatable $user = null): bool
+    {
+        $device = $device ?? $this->currentDevice();
+        $user = $user ?? Auth::user();
+
+        if (! $device || ! $device->isTrusted()) {
+            return false;
+        }
+
+        return ! $user || $device->logins()
+            ->withExpired()
+            ->where('authenticatable_type', $user->getMorphClass())
+            ->where('authenticatable_id', $user->getAuthIdentifier())
+            ->exists();
+    }
+
+    /**
+     * Block the device: its logins are revoked and it can no longer
+     * authenticate (see the EnsureDeviceNotBlocked middleware).
+     */
+    public function blockDevice(Device $device, string $reason = RevokeLogin::REASON_SECURITY): int
+    {
+        $device->forceFill(['blocked_at' => now(), 'trusted_at' => null, 'trusted_until' => null])->save();
+
+        return $this->revokeDevice($device, $reason);
+    }
+
+    public function unblockDevice(Device $device): void
+    {
+        $device->forceFill(['blocked_at' => null])->save();
     }
 
     /**

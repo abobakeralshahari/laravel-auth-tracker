@@ -2,15 +2,19 @@
 
 namespace Alshahari\AuthTracker\Listeners;
 
+use Alshahari\AuthTracker\Actions\RecordAttempt;
 use Alshahari\AuthTracker\Actions\RecordLogin;
 use Alshahari\AuthTracker\Actions\RevokeLogin;
 use Alshahari\AuthTracker\Actions\TouchActivity;
+use Alshahari\AuthTracker\Models\AuthAttempt;
 use Alshahari\AuthTracker\Models\Login;
 use Alshahari\AuthTracker\RequestContext;
 use Alshahari\AuthTracker\Support\Credential;
 use Alshahari\AuthTracker\TrackerManager;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\Authenticated;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Lockout;
 use Illuminate\Auth\Events\Login as LoginEvent;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Auth\Recaller;
@@ -35,7 +39,18 @@ class AuthEventSubscriber
         protected RecordLogin $recorder,
         protected RevokeLogin $revoker,
         protected TouchActivity $toucher,
+        protected RecordAttempt $attempts,
     ) {
+    }
+
+    public function handleFailed(Failed $event): void
+    {
+        $this->attempts->execute($event->credentials, AuthAttempt::REASON_INVALID_CREDENTIALS, $event->guard);
+    }
+
+    public function handleLockout(Lockout $event): void
+    {
+        $this->attempts->execute($event->request->only(config('auth_tracker.attempts.identifier_keys', ['email'])), AuthAttempt::REASON_LOCKOUT, null, $event->request);
     }
 
     public function handleSuccessfulLogin(LoginEvent $event): void
@@ -201,6 +216,8 @@ class AuthEventSubscriber
             LoginEvent::class => 'handleSuccessfulLogin',
             Authenticated::class => 'handleAuthenticated',
             Logout::class => 'handleSuccessfulLogout',
+            Failed::class => 'handleFailed',
+            Lockout::class => 'handleLockout',
         ];
     }
 }

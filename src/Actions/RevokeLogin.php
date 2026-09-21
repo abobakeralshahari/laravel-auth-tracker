@@ -36,12 +36,8 @@ class RevokeLogin
             return false;
         }
 
-        try {
-            $this->tracker->driver($login->driverName())->revoke($login);
-        } catch (Throwable $e) {
-            report($e);
-        }
-
+        // Flag first: invalidating the current session fires Laravel's
+        // Logout event, whose listener must not handle this login again.
         $login->forceFill([
             'revoked_at' => now(),
             'revoked_reason' => $reason,
@@ -50,6 +46,12 @@ class RevokeLogin
             'cleared_by_user' => true,
             'logout_at' => now(),
         ])->save();
+
+        try {
+            $this->tracker->driver($login->driverName())->revoke($login);
+        } catch (Throwable $e) {
+            report($e);
+        }
 
         event(new SessionRevoked($login, $reason));
 

@@ -2,36 +2,35 @@
 
 namespace Alshahari\AuthTracker;
 
+use Alshahari\AuthTracker\Actions\RevokeLogin;
 use Alshahari\AuthTracker\QueryBuilders\ExpirableEloquentQueryBuilder;
-use Alshahari\AuthTracker\Traits\ManagesLogins;
 
 class EloquentQueryBuilder extends ExpirableEloquentQueryBuilder
 {
-    use ManagesLogins;
+    /**
+     * Scope to the logins that are not revoked.
+     */
+    public function active(): static
+    {
+        return $this->whereNull('revoked_at');
+    }
+
+    /**
+     * Scope to the revoked logins.
+     */
+    public function revoked(): static
+    {
+        return $this->withExpired()->whereNotNull('revoked_at');
+    }
 
     /**
      * Revoke the logins matching the query: destroy the sessions, revoke
-     * the tokens and mark the logins as cleared (kept for history).
+     * the tokens and mark the logins as revoked (kept for history).
      *
      * @return int  Number of revoked logins.
      */
-    public function revoke()
+    public function revoke(string $reason = RevokeLogin::REASON_USER): int
     {
-        $logins = $this->get();
-
-        if ($logins->isEmpty()) {
-            return 0;
-        }
-
-        foreach ($logins->pluck('session_id')->filter() as $sessionId) {
-            $this->destroySession($sessionId);
-        }
-
-        $this->revokePassportTokens($logins->pluck('oauth_access_token_id')->filter());
-        $this->revokeSanctumTokens($logins->pluck('personal_access_token_id')->filter());
-
-        return $this->model->newQueryWithoutScopes()
-            ->whereKey($logins->modelKeys())
-            ->update(['cleared_by_user' => true, 'logout_at' => now(), 'remember_token' => null]);
+        return app(RevokeLogin::class)->many($this->get(), $reason);
     }
 }

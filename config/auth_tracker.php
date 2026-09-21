@@ -46,6 +46,50 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Guards
+    |--------------------------------------------------------------------------
+    |
+    | Which tracker driver handles each auth guard. Unlisted guards are
+    | inferred from their auth driver: session, sanctum or passport.
+    | Register custom drivers with AuthTracker::extend('jwt', fn () => ...).
+    |
+    | 'admin' => ['driver' => 'session'],
+    | 'mobile' => ['driver' => 'jwt'],
+    |
+    */
+
+    'guards' => [],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Trackables
+    |--------------------------------------------------------------------------
+    |
+    | Per-model options. Keys are the authenticatable classes (subclasses
+    | match too).
+    |
+    | App\Models\Admin::class => ['max_sessions' => 1, 'on_exceed' => 'revoke_oldest'],
+    |
+    */
+
+    'trackables' => [],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Activity
+    |--------------------------------------------------------------------------
+    |
+    | The last activity of a login is recorded at most once every
+    | "touch_interval" seconds (0 to record every request).
+    |
+    */
+
+    'activity' => [
+        'touch_interval' => 60,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Remember Lifetime
     |--------------------------------------------------------------------------
     |

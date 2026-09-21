@@ -23,6 +23,10 @@ class AuthTrackerServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../config/auth_tracker.php', 'auth_tracker');
 
+        $this->app->singleton(TrackerManager::class, fn ($app) => new TrackerManager($app));
+        $this->app->singleton(SessionManager::class);
+        $this->app->alias(TrackerManager::class, 'auth-tracker');
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 Commands\InstallCommand::class,
@@ -88,7 +92,7 @@ class AuthTrackerServiceProvider extends ServiceProvider
     protected function registerBlade(): void
     {
         Blade::if('tracked', function () {
-            return AuthTracker::isTracked(request()->user());
+            return $this->app->make(TrackerManager::class)->isTracked(request()->user());
         });
 
         Blade::if('ipLookup', function () {

@@ -2,7 +2,8 @@
 
 namespace Alshahari\AuthTracker\Middleware;
 
-use Alshahari\AuthTracker\Factories\DeviceFactory;
+use Alshahari\AuthTracker\Actions\ResolveDevice;
+use Alshahari\AuthTracker\Support\DeviceSignal;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Validation\UnauthorizedException;
@@ -18,7 +19,7 @@ class StoreDevice
     /**
      * Request attribute holding the resolved device.
      */
-    const REQUEST_KEY = 'auth_tracker.device';
+    const REQUEST_KEY = ResolveDevice::REQUEST_KEY;
 
     /**
      * Request attribute holding the guard name.
@@ -33,7 +34,11 @@ class StoreDevice
     {
         $isRequired = filter_var($isRequired, FILTER_VALIDATE_BOOLEAN);
 
-        $device = DeviceFactory::build($isRequired, $request);
+        if ($isRequired && ! $request->hasHeader(DeviceSignal::headerName('udid'))) {
+            throw new UnauthorizedException('You need to specify your device details.');
+        }
+
+        $device = app(ResolveDevice::class)->execute($request);
 
         $request->attributes->set(self::REQUEST_KEY, $device);
         $request->attributes->set(self::GUARD_KEY, $guard ?: config('auth.defaults.guard'));

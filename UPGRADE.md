@@ -89,3 +89,60 @@ Without a resolver the package still calls `tenant()` when the helper exists.
   `fcm_token` / `app_version` previously sent by the mobile application.
 - The device is resolved once per request and shared between the
   `store.device` middleware and the login listeners.
+
+## 2.1 — Tracker manager, drivers and session chaining
+
+Run `php artisan migrate`: the `add_drivers_and_revocation_to_logins_table`
+migration adds `guard`, `driver`, `credential_id`, `revoked_at`,
+`revoked_reason`, `last_activity_at`, `rotations`, `last_rotated_at` to the
+logins table and `name` to the devices table, then backfills them from the
+legacy columns. Legacy columns are still written.
+
+### New entry points
+
+```php
+use Alshahari\AuthTracker\Facades\AuthTracker;
+
+AuthTracker::active($user);                 // active logins with their device
+AuthTracker::history($user, days: 30);
+AuthTracker::current();                     // login of the current request
+AuthTracker::revoke($login, 'admin');
+AuthTracker::revokeOthers($user);
+AuthTracker::revokeAll($user);
+AuthTracker::devices($user);
+AuthTracker::revokeDevice($device);
+
+// Customization (AppServiceProvider::boot)
+AuthTracker::resolveTenantUsing(fn () => tenant()?->getTenantKey());
+AuthTracker::resolveDeviceUsing(fn (Request $r) => DeviceSignal::fromRequest($r));
+AuthTracker::extend('jwt', fn ($app) => new JwtTrackerDriver);
+```
+
+`config/auth_tracker.php` gains `guards`, `trackables` and `activity`.
+
+### Events
+
+- `SessionStarted($user, $login, $context)` replaces `Events\Login` (still
+  dispatched, deprecated).
+- `SessionRevoked($login, $reason)`, `SessionRotated($login, $previousCredentialId)`,
+  `DeviceRegistered($device, $request)` are new.
+
+### Behavior changes
+
+- **Passport refresh no longer creates a new login.** The existing login is
+  kept and its credential rotated (`rotations` is incremented).
+- `$user->activeLogin()` / `historyLogin()` are deprecated in favor of
+  `activeSessions()` / `sessionHistory()`.
+- `isAuthenticatedBySession()` now means "the current login was issued by
+  the session driver" instead of "the request has a session".
+- `last_activity_at` is recorded at most once per `activity.touch_interval`
+  seconds (default 60) through the cache.
+
+### Removed
+
+- `Factories\LoginFactory`, `Traits\ManagesLogins` (internal).
+- `Alshahari\AuthTracker\AuthTracker` static class introduced in 2.0 is
+  replaced by the `Alshahari\AuthTracker\Facades\AuthTracker` facade with
+  the same method names.
+- `DeviceService` and `DeviceFactory` are kept as deprecated shims over
+  `Support\DeviceSignal` and `Actions\ResolveDevice`.

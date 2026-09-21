@@ -2,7 +2,8 @@
 
 namespace Alshahari\AuthTracker;
 
-use Alshahari\AuthTracker\Factories\DeviceFactory;
+use Alshahari\AuthTracker\Actions\ResolveDevice;
+use Alshahari\AuthTracker\Support\DeviceSignal;
 use Alshahari\AuthTracker\Factories\IpProviderFactory;
 use Alshahari\AuthTracker\Factories\ParserFactory;
 use Alshahari\AuthTracker\Interfaces\IpProvider;
@@ -42,10 +43,10 @@ class RequestContext
         $this->ip = $request->ip();
         $this->loginBy = $request->input('login_by', 'other');
 
-        $this->device = DeviceFactory::build(false, $request);
+        $this->device = app(ResolveDevice::class)->execute($request);
         $this->deviceUdid = $this->device->udid;
 
-        $appTypeHeader = config('auth_tracker.device.header_prefix', 'x-device-').'app-type';
+        $appTypeHeader = DeviceSignal::headerName('app-type');
         $this->loginFrom = $request->header($appTypeHeader)
             ?: $request->input('login_from', $this->device->app_type ?? 'other');
     }

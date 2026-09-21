@@ -2,42 +2,84 @@
 
 namespace Alshahari\AuthTracker\Listeners;
 
-use Alshahari\AuthTracker\AuthTracker;
-use Alshahari\AuthTracker\Events\Login as LoginTracked;
-use Alshahari\AuthTracker\Factories\LoginFactory;
+use Alshahari\AuthTracker\Actions\RecordLogin;
 use Alshahari\AuthTracker\RequestContext;
+use Alshahari\AuthTracker\Support\Credential;
+use Alshahari\AuthTracker\TrackerManager;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Events\Dispatcher;
 use Laravel\Passport\Events\AccessTokenCreated;
+use Laravel\Passport\Events\AccessTokenRevoked;
 use Laravel\Passport\Passport;
-use Throwable;
 
 /**
  * Tracks Passport access tokens.
+ *
+ * A token refresh does not create a new login: the login keeps its identity
+ * and its credential is rotated to the new access token.
  */
 class PassportEventSubscriber
 {
+    /**
+     * Request attribute holding the id of the access token revoked by the
+     * refresh grant, right before the new one is created.
+     */
+    const REFRESHED_TOKEN_KEY = 'auth_tracker.passport.refreshed_token';
+
+    public function __construct(
+        protected TrackerManager $tracker,
+        protected RecordLogin $recorder,
+    ) {
+    }
+
+    /**
+     * The refresh grant revokes the previous access token before issuing
+     * the new one: remember it to link both.
+     */
+    public function handleAccessTokenRevocation(AccessTokenRevoked $event): void
+    {
+        if ($this->isRefreshRequest()) {
+            request()->attributes->set(self::REFRESHED_TOKEN_KEY, $event->tokenId);
+        }
+    }
+
     public function handleAccessTokenCreation(AccessTokenCreated $event): void
     {
         $user = $this->resolveUser($event);
 
-        if (! $user || ! AuthTracker::isTracked($user)) {
+        if (! $user || ! $this->tracker->isTracked($user)) {
             return;
         }
 
-        $context = new RequestContext;
+        $token = Passport::token()->newQuery()->find($event->tokenId);
+        $credential = Credential::passport($event->tokenId, $token?->expires_at);
 
-        $login = LoginFactory::build($event, $context);
+        if ($login = $this->refreshedLogin($user)) {
+            $this->recorder->rotate($login, $credential);
 
-        $login->expiresAt(Passport::token()->newQuery()->find($event->tokenId)?->expires_at);
-
-        $user->logins()->save($login);
-
-        $this->attachDevice($context, $user);
-
-        if (request()->input('grant_type') !== 'refresh_token') {
-            event(new LoginTracked($user, $context));
+            return;
         }
+
+        $this->recorder->execute($user, $credential, new RequestContext, $this->tracker->guardForDriver('passport'));
+    }
+
+    /**
+     * The login owning the access token that was just refreshed, if any.
+     */
+    protected function refreshedLogin(Authenticatable $user)
+    {
+        $previous = $this->isRefreshRequest() ? request()->attributes->get(self::REFRESHED_TOKEN_KEY) : null;
+
+        if (! $previous) {
+            return null;
+        }
+
+        return $user->logins()
+            ->withExpired()
+            ->active()
+            ->where('driver', 'passport')
+            ->where('credential_id', $previous)
+            ->first();
     }
 
     /**
@@ -67,18 +109,9 @@ class PassportEventSubscriber
         return null;
     }
 
-    protected function attachDevice(RequestContext $context, Authenticatable $user): void
+    protected function isRefreshRequest(): bool
     {
-        if (! $context->device) {
-            return;
-        }
-
-        try {
-            $context->device->deviceable()->associate($user);
-            $context->device->save();
-        } catch (Throwable $e) {
-            report($e);
-        }
+        return app()->bound('request') && request()->input('grant_type') === 'refresh_token';
     }
 
     /**
@@ -89,6 +122,7 @@ class PassportEventSubscriber
     public function subscribe(Dispatcher $events): array
     {
         return [
+            AccessTokenRevoked::class => 'handleAccessTokenRevocation',
             AccessTokenCreated::class => 'handleAccessTokenCreation',
         ];
     }

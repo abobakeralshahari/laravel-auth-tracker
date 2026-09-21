@@ -2,7 +2,7 @@
 
 namespace Alshahari\AuthTracker\Tests;
 
-use Alshahari\AuthTracker\AuthTracker;
+use Alshahari\AuthTracker\Facades\AuthTracker;
 use Alshahari\AuthTracker\AuthTrackerServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -19,7 +19,6 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     {
         parent::setUp();
 
-        AuthTracker::flush();
 
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
         $this->loadMigrationsFrom(__DIR__.'/../vendor/laravel/passport/database/migrations');

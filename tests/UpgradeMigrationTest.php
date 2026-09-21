@@ -10,7 +10,7 @@ class UpgradeMigrationTest extends TestCase
     public function test_duplicated_devices_are_merged_and_the_identifier_becomes_unique(): void
     {
         // Back to the v1 schema.
-        $this->artisan('migrate:rollback', ['--step' => 1])->run();
+        $this->artisan('migrate:rollback', ['--step' => 2])->run();
 
         $this->assertFalse(Schema::hasColumn('devices', 'app_type'));
         $this->assertTrue(Schema::hasColumn('logins', 'device'));

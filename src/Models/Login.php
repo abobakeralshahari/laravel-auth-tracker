@@ -2,19 +2,21 @@
 
 namespace Alshahari\AuthTracker\Models;
 
-use Alshahari\AuthTracker\AuthTracker;
+use Alshahari\AuthTracker\Actions\RevokeLogin;
 use Alshahari\AuthTracker\EloquentQueryBuilder;
+use Alshahari\AuthTracker\Facades\AuthTracker;
 use Alshahari\AuthTracker\Traits\Expirable;
-use Alshahari\AuthTracker\Traits\ManagesLogins;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Auth;
 
+/**
+ * A tracked login: a session or an API token, bound to a device.
+ */
 class Login extends Model
 {
-    use Expirable, ManagesLogins, SoftDeletes;
+    use Expirable, SoftDeletes;
 
     const EXPIRES_AT = 'expires_at';
 
@@ -31,7 +33,11 @@ class Login extends Model
     protected $casts = [
         'expires_at' => 'datetime',
         'logout_at' => 'datetime',
+        'revoked_at' => 'datetime',
+        'last_activity_at' => 'datetime',
+        'last_rotated_at' => 'datetime',
         'cleared_by_user' => 'boolean',
+        'rotations' => 'integer',
         'ip_data' => 'array',
     ];
 
@@ -54,6 +60,7 @@ class Login extends Model
         'remember_token',
         'oauth_access_token_id',
         'personal_access_token_id',
+        'credential_id',
         'expires_at',
         'deleted_at',
         'device_id',
@@ -89,8 +96,12 @@ class Login extends Model
         }
     }
 
+    // ------------------------------------------------------------------
+    //  Relations
+    // ------------------------------------------------------------------
+
     /**
-     * Relation between Login and an authenticatable model.
+     * The authenticated model (user, admin...).
      */
     public function authenticatable(): MorphTo
     {
@@ -105,6 +116,72 @@ class Login extends Model
         return $this->belongsTo(AuthTracker::deviceModel(), 'device_id');
     }
 
+    // ------------------------------------------------------------------
+    //  Credential
+    // ------------------------------------------------------------------
+
+    /**
+     * Name of the tracker driver that issued the credential.
+     */
+    public function driverName(): string
+    {
+        return $this->driver ?: match (true) {
+            (bool) $this->oauth_access_token_id => 'passport',
+            (bool) $this->personal_access_token_id => 'sanctum',
+            default => 'session',
+        };
+    }
+
+    /**
+     * Identifier of the credential (session id, token id).
+     */
+    public function credentialId(): ?string
+    {
+        $id = $this->credential_id
+            ?? $this->session_id
+            ?? $this->oauth_access_token_id
+            ?? $this->personal_access_token_id;
+
+        return $id === null ? null : (string) $id;
+    }
+
+    // ------------------------------------------------------------------
+    //  State
+    // ------------------------------------------------------------------
+
+    public function isRevoked(): bool
+    {
+        return ! is_null($this->revoked_at) || $this->cleared_by_user || ! is_null($this->logout_at);
+    }
+
+    /**
+     * Not revoked and not expired.
+     */
+    public function isActive(): bool
+    {
+        return ! $this->isRevoked() && ! $this->isExpired();
+    }
+
+    /**
+     * Dynamically add the "is_current" attribute.
+     *
+     * @return bool
+     */
+    public function getIsCurrentAttribute()
+    {
+        if (! app()->bound('request') || ! ($user = request()->user() ?? auth()->user())) {
+            return false;
+        }
+
+        if (! AuthTracker::isTracked($user)
+            || $this->authenticatable_type !== $user->getMorphClass()
+            || (string) $this->authenticatable_id !== (string) $user->getAuthIdentifier()) {
+            return false;
+        }
+
+        return AuthTracker::current($user)?->is($this) ?? false;
+    }
+
     /**
      * Add the "location" attribute to get the IP address geolocation.
      *
@@ -117,104 +194,45 @@ class Login extends Model
         return $location ? implode(', ', $location) : null;
     }
 
-    /**
-     * Dynamically add the "is_current" attribute.
-     *
-     * @return bool
-     */
-    public function getIsCurrentAttribute()
-    {
-        $request = app()->bound('request') ? request() : null;
-
-        if (! $request) {
-            return false;
-        }
-
-        // Session
-        if ($this->session_id && $request->hasSession()) {
-            $session = $request->session();
-
-            if ($session->has(self::SESSION_KEY)) {
-                return (int) $session->get(self::SESSION_KEY) === (int) $this->getKey();
-            }
-
-            return $this->session_id === $session->getId();
-        }
-
-        $user = $request->user();
-
-        if (! $user || ! method_exists($user, 'isAuthenticatedByPassport')) {
-            return false;
-        }
-
-        // Passport
-        if ($this->oauth_access_token_id && $user->isAuthenticatedByPassport()) {
-            return $this->oauth_access_token_id === $user->currentPassportTokenId();
-        }
-
-        // Sanctum
-        if ($this->personal_access_token_id && $user->isAuthenticatedBySanctum()) {
-            return (int) $this->personal_access_token_id === (int) $user->currentAccessToken()->id;
-        }
-
-        return false;
-    }
-
-    /**
-     * Determine if this login is still active (not revoked by the user).
-     */
-    public function isActive(): bool
-    {
-        return ! $this->cleared_by_user && is_null($this->logout_at) && ! $this->isExpired();
-    }
+    // ------------------------------------------------------------------
+    //  Actions
+    // ------------------------------------------------------------------
 
     /**
      * Revoke the login: destroy the session / revoke the token and mark
-     * the login as cleared. The record is kept for the login history.
-     *
-     * @return bool
+     * the login as revoked. The record is kept for the login history.
      */
-    public function revoke()
+    public function revoke(string $reason = RevokeLogin::REASON_USER): bool
     {
-        if ($this->session_id) {
-            $this->destroySession($this->session_id);
-        } elseif ($this->oauth_access_token_id) {
-            $this->revokePassportTokens($this->oauth_access_token_id);
-        } elseif ($this->personal_access_token_id) {
-            $this->revokeSanctumTokens($this->personal_access_token_id);
-        }
-
-        return $this->markAsRevoked();
+        return AuthTracker::revoke($this, $reason);
     }
 
     /**
      * Alias of revoke().
-     *
-     * @return bool
      */
-    public function logout()
+    public function logout(): bool
     {
         return $this->revoke();
     }
 
     /**
      * Mark the login as revoked without touching the session / token.
-     *
-     * @return bool
      */
-    public function markAsRevoked()
+    public function markAsRevoked(string $reason = RevokeLogin::REASON_USER): bool
     {
         return $this->forceFill([
-            'cleared_by_user' => true,
-            'logout_at' => now(),
+            'revoked_at' => $this->revoked_at ?? now(),
+            'revoked_reason' => $reason,
             'remember_token' => null,
+            'cleared_by_user' => true,
+            'logout_at' => $this->logout_at ?? now(),
         ])->save();
     }
 
     /**
      * @deprecated Use markAsRevoked().
      */
-    public function revokeDelete()
+    public function revokeDelete(): bool
     {
         return $this->markAsRevoked();
     }

@@ -2,11 +2,11 @@
 
 namespace Alshahari\AuthTracker\Listeners;
 
-use Alshahari\AuthTracker\AuthTracker;
-use Alshahari\AuthTracker\Events\Login as LoginTracked;
+use Alshahari\AuthTracker\Actions\RecordLogin;
 use Alshahari\AuthTracker\Events\PersonalAccessTokenCreated;
-use Alshahari\AuthTracker\Factories\LoginFactory;
 use Alshahari\AuthTracker\RequestContext;
+use Alshahari\AuthTracker\Support\Credential;
+use Alshahari\AuthTracker\TrackerManager;
 use Carbon\Carbon;
 use Illuminate\Events\Dispatcher;
 
@@ -15,32 +15,27 @@ use Illuminate\Events\Dispatcher;
  */
 class SanctumEventSubscriber
 {
+    public function __construct(
+        protected TrackerManager $tracker,
+        protected RecordLogin $recorder,
+    ) {
+    }
+
     public function handlePersonalAccessTokenCreation(PersonalAccessTokenCreated $event): void
     {
-        $user = $event->personalAccessToken->tokenable;
+        $token = $event->personalAccessToken;
+        $user = $token->tokenable;
 
-        if (! $user || ! AuthTracker::isTracked($user)) {
+        if (! $user || ! $this->tracker->isTracked($user)) {
             return;
         }
 
-        $context = new RequestContext;
+        $expiresAt = $token->expires_at
+            ?? (($minutes = config('sanctum.expiration')) ? Carbon::now()->addMinutes((int) $minutes) : null);
 
-        $login = LoginFactory::build($event, $context);
+        $credential = Credential::sanctum($token->getKey(), $expiresAt);
 
-        if ($expiresAt = $event->personalAccessToken->expires_at) {
-            $login->expiresAt($expiresAt);
-        } elseif ($minutes = config('sanctum.expiration')) {
-            $login->expiresAt(Carbon::now()->addMinutes((int) $minutes));
-        }
-
-        $user->logins()->save($login);
-
-        if ($context->device) {
-            $context->device->deviceable()->associate($user);
-            $context->device->save();
-        }
-
-        event(new LoginTracked($user, $context));
+        $this->recorder->execute($user, $credential, new RequestContext, $this->tracker->guardForDriver('sanctum'));
     }
 
     /**

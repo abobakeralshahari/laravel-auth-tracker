@@ -51,6 +51,32 @@ class PassportTest extends TestCase
         $this->assertCount(1, $user->activeLogin());
     }
 
+    public function test_refreshing_a_token_rotates_the_login_instead_of_creating_one(): void
+    {
+        $user = $this->createUser(PassportUser::class);
+
+        $tokens = $this->authenticate($user)->json();
+        $login = $user->logins()->first();
+
+        $refreshed = $this->postJson('/oauth/token', [
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $tokens['refresh_token'],
+            'client_id' => $this->client->getKey(),
+            'client_secret' => $this->client->plainSecret,
+            'scope' => '',
+        ])->assertOk()->json();
+
+        $this->assertCount(1, $user->logins()->withExpired()->get());
+        $this->assertSame(1, $login->fresh()->rotations);
+        $this->assertNotSame($login->credential_id, $login->fresh()->credential_id);
+
+        Auth::forgetGuards();
+        $this->getJson('/api/check', ['Authorization' => 'Bearer '.$refreshed['access_token']])
+            ->assertOk()
+            ->assertJsonPath('id', $login->id)
+            ->assertJsonPath('is_current', true);
+    }
+
     protected function authenticate($user)
     {
         return $this->postJson('/oauth/token', [

@@ -2,7 +2,7 @@
 
 namespace Alshahari\AuthTracker\Tests;
 
-use Alshahari\AuthTracker\AuthTracker;
+use Alshahari\AuthTracker\Facades\AuthTracker;
 use Alshahari\AuthTracker\Models\Device;
 use Illuminate\Support\Facades\Auth;
 

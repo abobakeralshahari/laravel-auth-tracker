@@ -2,11 +2,13 @@
 
 namespace Alshahari\AuthTracker\Listeners;
 
-use Alshahari\AuthTracker\AuthTracker;
-use Alshahari\AuthTracker\Events\Login as LoginTracked;
-use Alshahari\AuthTracker\Factories\LoginFactory;
+use Alshahari\AuthTracker\Actions\RecordLogin;
+use Alshahari\AuthTracker\Actions\RevokeLogin;
+use Alshahari\AuthTracker\Actions\TouchActivity;
 use Alshahari\AuthTracker\Models\Login;
 use Alshahari\AuthTracker\RequestContext;
+use Alshahari\AuthTracker\Support\Credential;
+use Alshahari\AuthTracker\TrackerManager;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\Authenticated;
 use Illuminate\Auth\Events\Login as LoginEvent;
@@ -19,7 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 /**
- * Tracks session based logins.
+ * Tracks session based logins (web guards, Filament panels...).
  */
 class AuthEventSubscriber
 {
@@ -28,13 +30,25 @@ class AuthEventSubscriber
      */
     const SESSION_ID_KEY = 'auth_tracker.session_id';
 
+    public function __construct(
+        protected TrackerManager $tracker,
+        protected RecordLogin $recorder,
+        protected RevokeLogin $revoker,
+        protected TouchActivity $toucher,
+    ) {
+    }
+
     public function handleSuccessfulLogin(LoginEvent $event): void
     {
-        if (! AuthTracker::isTracked($event->user) || ! $this->session()) {
+        $session = $this->session();
+
+        if (! $session || ! $this->tracker->isTracked($event->user)) {
             return;
         }
 
-        $session = $this->session();
+        if ($this->tracker->driverNameFor($event->guard) !== 'session') {
+            return; // The guard is tracked by another driver (custom).
+        }
 
         if (Auth::guard($event->guard)->viaRemember()) {
             $this->handleRememberedLogin($event, $session);
@@ -42,23 +56,23 @@ class AuthEventSubscriber
             return;
         }
 
-        $context = new RequestContext;
-
-        $login = LoginFactory::build($event, $context);
-
-        $login->expiresAt($event->remember
+        $expiresAt = $event->remember
             ? Carbon::now()->addDays((int) config('auth_tracker.remember_lifetime', 365))
-            : Carbon::now()->addMinutes((int) config('session.lifetime', 120)));
+            : Carbon::now()->addMinutes((int) config('session.lifetime', 120));
 
-        $event->user->logins()->save($login);
+        $credential = Credential::session(
+            $session->getId(),
+            $expiresAt,
+            $event->remember ? $event->user->getRememberToken() : null,
+        );
+
+        $login = $this->recorder->execute($event->user, $credential, new RequestContext, $event->guard);
 
         $this->bindLoginToSession($login, $session);
 
         // Each session gets its own remember token so that a single
         // session can be revoked without affecting the others.
         $this->updateRememberToken($event->user, Str::random(60));
-
-        event(new LoginTracked($event->user, $context));
     }
 
     /**
@@ -72,65 +86,72 @@ class AuthEventSubscriber
         }
 
         $login = $event->user->logins()
+            ->active()
             ->where('remember_token', $recaller->token())
             ->first();
 
         if ($login) {
-            $login->forceFill(['session_id' => $session->getId()])->save();
+            $login->forceFill([
+                'session_id' => $session->getId(),
+                'credential_id' => $session->getId(),
+                'last_activity_at' => now(),
+            ])->save();
+
             $this->bindLoginToSession($login, $session);
         }
     }
 
     /**
-     * Keep the stored session id in sync when the application regenerates
-     * the session id after the login event (Breeze, Fortify, Filament...).
+     * On every authenticated request: keep the stored session id in sync
+     * when the application regenerated it after login (Breeze, Fortify,
+     * Filament...) and record the activity.
      */
     public function handleAuthenticated(Authenticated $event): void
     {
+        if (! $this->tracker->isTracked($event->user)) {
+            return;
+        }
+
         $session = $this->session();
 
-        if (! $session || ! $session->has(Login::SESSION_KEY)) {
-            return;
+        if ($session && $session->has(Login::SESSION_KEY) && $session->get(self::SESSION_ID_KEY) !== $session->getId()) {
+            $this->tracker->loginModel()::withoutGlobalScopes()
+                ->whereKey($session->get(Login::SESSION_KEY))
+                ->update(['session_id' => $session->getId(), 'credential_id' => $session->getId()]);
+
+            $session->put(self::SESSION_ID_KEY, $session->getId());
         }
 
-        if ($session->get(self::SESSION_ID_KEY) === $session->getId()) {
-            return;
-        }
-
-        AuthTracker::loginModel()::withoutGlobalScopes()
-            ->whereKey($session->get(Login::SESSION_KEY))
-            ->update(['session_id' => $session->getId()]);
-
-        $session->put(self::SESSION_ID_KEY, $session->getId());
+        $this->toucher->execute($event->user);
     }
 
     public function handleSuccessfulLogout(Logout $event): void
     {
-        if (! $event->user || ! AuthTracker::isTracked($event->user)) {
-            return;
-        }
-
         $session = $this->session();
 
-        $query = $event->user->logins();
-
-        if ($session && $session->has(Login::SESSION_KEY)) {
-            $query->whereKey($session->get(Login::SESSION_KEY));
-        } elseif ($session) {
-            $query->where('session_id', $session->getId());
-        } else {
+        if (! $session || ! $event->user || ! $this->tracker->isTracked($event->user)) {
             return;
         }
 
-        $query->update(['cleared_by_user' => true, 'logout_at' => now(), 'remember_token' => null]);
+        $login = $session->has(Login::SESSION_KEY)
+            ? $event->user->logins()->active()->find($session->get(Login::SESSION_KEY))
+            : $event->user->logins()->active()->where('session_id', $session->getId())->first();
+
+        if ($login) {
+            // Laravel is already destroying the session: only flag the login.
+            $login->markAsRevoked(RevokeLogin::REASON_USER);
+            event(new \Alshahari\AuthTracker\Events\SessionRevoked($login, RevokeLogin::REASON_USER));
+        }
 
         $session->forget([Login::SESSION_KEY, self::SESSION_ID_KEY]);
+        $this->tracker->sessions()->forgetCurrent();
     }
 
     protected function bindLoginToSession(Login $login, Session $session): void
     {
         $session->put(Login::SESSION_KEY, $login->getKey());
         $session->put(self::SESSION_ID_KEY, $session->getId());
+        $this->tracker->sessions()->forgetCurrent();
     }
 
     /**

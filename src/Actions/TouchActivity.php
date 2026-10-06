@@ -1,9 +1,9 @@
 <?php
 
-namespace Alshahari\AuthTracker\Actions;
+namespace Awsan\AuthTracker\Actions;
 
-use Alshahari\AuthTracker\Drivers\SessionDriver;
-use Alshahari\AuthTracker\TrackerManager;
+use Awsan\AuthTracker\Drivers\SessionDriver;
+use Awsan\AuthTracker\TrackerManager;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Cache;
 

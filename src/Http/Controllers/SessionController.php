@@ -1,10 +1,10 @@
 <?php
 
-namespace Alshahari\AuthTracker\Http\Controllers;
+namespace Awsan\AuthTracker\Http\Controllers;
 
-use Alshahari\AuthTracker\Actions\RevokeLogin;
-use Alshahari\AuthTracker\Facades\AuthTracker;
-use Alshahari\AuthTracker\Http\Resources\SessionResource;
+use Awsan\AuthTracker\Actions\RevokeLogin;
+use Awsan\AuthTracker\Facades\AuthTracker;
+use Awsan\AuthTracker\Http\Resources\SessionResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

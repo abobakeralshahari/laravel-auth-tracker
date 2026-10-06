@@ -1,11 +1,11 @@
 <?php
 
-namespace Alshahari\AuthTracker\Services;
+namespace Awsan\AuthTracker\Services;
 
-use Alshahari\AuthTracker\Actions\ResolveDevice;
-use Alshahari\AuthTracker\Facades\AuthTracker;
-use Alshahari\AuthTracker\Models\Device;
-use Alshahari\AuthTracker\Support\DeviceSignal;
+use Awsan\AuthTracker\Actions\ResolveDevice;
+use Awsan\AuthTracker\Facades\AuthTracker;
+use Awsan\AuthTracker\Models\Device;
+use Awsan\AuthTracker\Support\DeviceSignal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 

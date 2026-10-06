@@ -1,8 +1,8 @@
 <?php
 
-namespace Alshahari\AuthTracker\Exceptions;
+namespace Awsan\AuthTracker\Exceptions;
 
-use Alshahari\AuthTracker\Models\Login;
+use Awsan\AuthTracker\Models\Login;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use RuntimeException;

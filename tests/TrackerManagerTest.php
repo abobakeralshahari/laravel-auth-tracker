@@ -1,13 +1,13 @@
 <?php
 
-namespace Alshahari\AuthTracker\Tests;
+namespace Awsan\AuthTracker\Tests;
 
-use Alshahari\AuthTracker\Contracts\TrackerDriver;
-use Alshahari\AuthTracker\Drivers\SessionDriver;
-use Alshahari\AuthTracker\Events\SessionRevoked;
-use Alshahari\AuthTracker\Events\SessionStarted;
-use Alshahari\AuthTracker\Facades\AuthTracker;
-use Alshahari\AuthTracker\Models\Login;
+use Awsan\AuthTracker\Contracts\TrackerDriver;
+use Awsan\AuthTracker\Drivers\SessionDriver;
+use Awsan\AuthTracker\Events\SessionRevoked;
+use Awsan\AuthTracker\Events\SessionStarted;
+use Awsan\AuthTracker\Facades\AuthTracker;
+use Awsan\AuthTracker\Models\Login;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;

@@ -58,7 +58,7 @@ Republish the configuration or add these keys to your `config/auth_tracker.php`:
 ```php
 'connection' => env('AUTH_TRACKER_CONNECTION'),
 'devices_table' => 'devices',
-'models' => ['login' => Alshahari\AuthTracker\Models\Login::class],
+'models' => ['login' => Awsan\AuthTracker\Models\Login::class],
 'passport_guards' => ['api'],
 'device' => [
     'header_prefix' => 'x-device-',
@@ -72,7 +72,7 @@ Republish the configuration or add these keys to your `config/auth_tracker.php`:
 ### Tenant resolution
 
 ```php
-use Alshahari\AuthTracker\AuthTracker;
+use Awsan\AuthTracker\AuthTracker;
 
 // AppServiceProvider::boot()
 AuthTracker::resolveTenantUsing(fn () => tenant()?->getTenantKey());
@@ -101,7 +101,7 @@ legacy columns. Legacy columns are still written.
 ### New entry points
 
 ```php
-use Alshahari\AuthTracker\Facades\AuthTracker;
+use Awsan\AuthTracker\Facades\AuthTracker;
 
 AuthTracker::active($user);                 // active logins with their device
 AuthTracker::history($user, days: 30);
@@ -141,8 +141,8 @@ AuthTracker::extend('jwt', fn ($app) => new JwtTrackerDriver);
 ### Removed
 
 - `Factories\LoginFactory`, `Traits\ManagesLogins` (internal).
-- `Alshahari\AuthTracker\AuthTracker` static class introduced in 2.0 is
-  replaced by the `Alshahari\AuthTracker\Facades\AuthTracker` facade with
+- `Awsan\AuthTracker\AuthTracker` static class introduced in 2.0 is
+  replaced by the `Awsan\AuthTracker\Facades\AuthTracker` facade with
   the same method names.
 - `DeviceService` and `DeviceFactory` are kept as deprecated shims over
   `Support\DeviceSignal` and `Actions\ResolveDevice`.

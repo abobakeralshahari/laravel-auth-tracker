@@ -1,9 +1,9 @@
 <?php
 
-namespace Alshahari\AuthTracker\Commands;
+namespace Awsan\AuthTracker\Commands;
 
-use Alshahari\AuthTracker\Facades\AuthTracker;
-use Alshahari\AuthTracker\Models\AuthAttempt;
+use Awsan\AuthTracker\Facades\AuthTracker;
+use Awsan\AuthTracker\Models\AuthAttempt;
 use Illuminate\Console\Command;
 
 /**

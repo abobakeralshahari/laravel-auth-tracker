@@ -1,16 +1,16 @@
 <?php
 
-namespace Alshahari\AuthTracker\Listeners;
+namespace Awsan\AuthTracker\Listeners;
 
-use Alshahari\AuthTracker\Actions\RecordAttempt;
-use Alshahari\AuthTracker\Actions\RecordLogin;
-use Alshahari\AuthTracker\Actions\RevokeLogin;
-use Alshahari\AuthTracker\Actions\TouchActivity;
-use Alshahari\AuthTracker\Models\AuthAttempt;
-use Alshahari\AuthTracker\Models\Login;
-use Alshahari\AuthTracker\RequestContext;
-use Alshahari\AuthTracker\Support\Credential;
-use Alshahari\AuthTracker\TrackerManager;
+use Awsan\AuthTracker\Actions\RecordAttempt;
+use Awsan\AuthTracker\Actions\RecordLogin;
+use Awsan\AuthTracker\Actions\RevokeLogin;
+use Awsan\AuthTracker\Actions\TouchActivity;
+use Awsan\AuthTracker\Models\AuthAttempt;
+use Awsan\AuthTracker\Models\Login;
+use Awsan\AuthTracker\RequestContext;
+use Awsan\AuthTracker\Support\Credential;
+use Awsan\AuthTracker\TrackerManager;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\Authenticated;
 use Illuminate\Auth\Events\Failed;
@@ -155,7 +155,7 @@ class AuthEventSubscriber
         if ($login) {
             // Laravel is already destroying the session: only flag the login.
             $login->markAsRevoked(RevokeLogin::REASON_USER);
-            event(new \Alshahari\AuthTracker\Events\SessionRevoked($login, RevokeLogin::REASON_USER));
+            event(new \Awsan\AuthTracker\Events\SessionRevoked($login, RevokeLogin::REASON_USER));
         }
 
         $session->forget([Login::SESSION_KEY, self::SESSION_ID_KEY]);

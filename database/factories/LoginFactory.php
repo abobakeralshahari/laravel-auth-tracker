@@ -1,9 +1,9 @@
 <?php
 
-namespace Alshahari\AuthTracker\Database\Factories;
+namespace Awsan\AuthTracker\Database\Factories;
 
-use Alshahari\AuthTracker\Models\Device;
-use Alshahari\AuthTracker\Models\Login;
+use Awsan\AuthTracker\Models\Device;
+use Awsan\AuthTracker\Models\Login;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;

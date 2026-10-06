@@ -1,14 +1,14 @@
 <?php
 
-namespace Alshahari\AuthTracker;
+namespace Awsan\AuthTracker;
 
-use Alshahari\AuthTracker\Contracts\TrackerDriver;
-use Alshahari\AuthTracker\Drivers\PassportDriver;
-use Alshahari\AuthTracker\Drivers\SanctumDriver;
-use Alshahari\AuthTracker\Drivers\SessionDriver;
-use Alshahari\AuthTracker\Support\DeviceSignal;
-use Alshahari\AuthTracker\Support\IssuedToken;
-use Alshahari\AuthTracker\Traits\AuthTracking;
+use Awsan\AuthTracker\Contracts\TrackerDriver;
+use Awsan\AuthTracker\Drivers\PassportDriver;
+use Awsan\AuthTracker\Drivers\SanctumDriver;
+use Awsan\AuthTracker\Drivers\SessionDriver;
+use Awsan\AuthTracker\Support\DeviceSignal;
+use Awsan\AuthTracker\Support\IssuedToken;
+use Awsan\AuthTracker\Traits\AuthTracking;
 use Closure;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
@@ -20,7 +20,7 @@ use InvalidArgumentException;
  * runtime customizations and forwards the session operations to the
  * SessionManager.
  *
- * @mixin \Alshahari\AuthTracker\SessionManager
+ * @mixin \Awsan\AuthTracker\SessionManager
  */
 class TrackerManager extends Manager
 {
@@ -195,7 +195,7 @@ class TrackerManager extends Manager
     // ------------------------------------------------------------------
 
     /**
-     * @return class-string<\Alshahari\AuthTracker\Models\Device>
+     * @return class-string<\Awsan\AuthTracker\Models\Device>
      */
     public function deviceModel(): string
     {
@@ -203,7 +203,7 @@ class TrackerManager extends Manager
     }
 
     /**
-     * @return class-string<\Alshahari\AuthTracker\Models\Login>
+     * @return class-string<\Awsan\AuthTracker\Models\Login>
      */
     public function loginModel(): string
     {
@@ -272,7 +272,7 @@ class TrackerManager extends Manager
     }
 
     /**
-     * @throws \Alshahari\AuthTracker\Exceptions\InvalidRefreshTokenException
+     * @throws \Awsan\AuthTracker\Exceptions\InvalidRefreshTokenException
      */
     public function refreshToken(string $refreshToken): IssuedToken
     {

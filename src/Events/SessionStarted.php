@@ -1,9 +1,9 @@
 <?php
 
-namespace Alshahari\AuthTracker\Events;
+namespace Awsan\AuthTracker\Events;
 
-use Alshahari\AuthTracker\Models\Login;
-use Alshahari\AuthTracker\RequestContext;
+use Awsan\AuthTracker\Models\Login;
+use Awsan\AuthTracker\RequestContext;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 /**

@@ -1,8 +1,8 @@
 <?php
 
-namespace Alshahari\AuthTracker\Traits;
+namespace Awsan\AuthTracker\Traits;
 
-use Alshahari\AuthTracker\Events\FailedApiCall;
+use Awsan\AuthTracker\Events\FailedApiCall;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\TransferException;
 

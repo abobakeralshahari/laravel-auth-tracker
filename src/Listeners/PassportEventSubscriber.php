@@ -1,11 +1,11 @@
 <?php
 
-namespace Alshahari\AuthTracker\Listeners;
+namespace Awsan\AuthTracker\Listeners;
 
-use Alshahari\AuthTracker\Actions\RecordLogin;
-use Alshahari\AuthTracker\RequestContext;
-use Alshahari\AuthTracker\Support\Credential;
-use Alshahari\AuthTracker\TrackerManager;
+use Awsan\AuthTracker\Actions\RecordLogin;
+use Awsan\AuthTracker\RequestContext;
+use Awsan\AuthTracker\Support\Credential;
+use Awsan\AuthTracker\TrackerManager;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Events\Dispatcher;
 use Laravel\Passport\Events\AccessTokenCreated;

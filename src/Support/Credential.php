@@ -1,6 +1,6 @@
 <?php
 
-namespace Alshahari\AuthTracker\Support;
+namespace Awsan\AuthTracker\Support;
 
 use Carbon\CarbonInterface;
 

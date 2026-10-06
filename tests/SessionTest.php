@@ -1,8 +1,8 @@
 <?php
 
-namespace Alshahari\AuthTracker\Tests;
+namespace Awsan\AuthTracker\Tests;
 
-use Alshahari\AuthTracker\Models\Login;
+use Awsan\AuthTracker\Models\Login;
 use Illuminate\Support\Facades\Auth;
 
 class SessionTest extends TestCase

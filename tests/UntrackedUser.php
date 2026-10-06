@@ -1,6 +1,6 @@
 <?php
 
-namespace Alshahari\AuthTracker\Tests;
+namespace Awsan\AuthTracker\Tests;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 

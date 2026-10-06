@@ -1,10 +1,10 @@
 <?php
 
-namespace Alshahari\AuthTracker\Actions;
+namespace Awsan\AuthTracker\Actions;
 
-use Alshahari\AuthTracker\Events\SessionRevoked;
-use Alshahari\AuthTracker\Models\Login;
-use Alshahari\AuthTracker\TrackerManager;
+use Awsan\AuthTracker\Events\SessionRevoked;
+use Awsan\AuthTracker\Models\Login;
+use Awsan\AuthTracker\TrackerManager;
 use Illuminate\Support\Collection;
 use Throwable;
 

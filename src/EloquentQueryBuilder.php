@@ -1,9 +1,9 @@
 <?php
 
-namespace Alshahari\AuthTracker;
+namespace Awsan\AuthTracker;
 
-use Alshahari\AuthTracker\Actions\RevokeLogin;
-use Alshahari\AuthTracker\QueryBuilders\ExpirableEloquentQueryBuilder;
+use Awsan\AuthTracker\Actions\RevokeLogin;
+use Awsan\AuthTracker\QueryBuilders\ExpirableEloquentQueryBuilder;
 
 class EloquentQueryBuilder extends ExpirableEloquentQueryBuilder
 {

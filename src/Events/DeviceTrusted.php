@@ -1,8 +1,8 @@
 <?php
 
-namespace Alshahari\AuthTracker\Events;
+namespace Awsan\AuthTracker\Events;
 
-use Alshahari\AuthTracker\Models\Device;
+use Awsan\AuthTracker\Models\Device;
 
 class DeviceTrusted
 {

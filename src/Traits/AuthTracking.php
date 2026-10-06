@@ -1,10 +1,10 @@
 <?php
 
-namespace Alshahari\AuthTracker\Traits;
+namespace Awsan\AuthTracker\Traits;
 
-use Alshahari\AuthTracker\Actions\RevokeLogin;
-use Alshahari\AuthTracker\Facades\AuthTracker;
-use Alshahari\AuthTracker\Models\Login;
+use Awsan\AuthTracker\Actions\RevokeLogin;
+use Awsan\AuthTracker\Facades\AuthTracker;
+use Awsan\AuthTracker\Models\Login;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace Alshahari\AuthTracker\Http;
+namespace Awsan\AuthTracker\Http;
 
-use Alshahari\AuthTracker\Http\Controllers\DeviceController;
-use Alshahari\AuthTracker\Http\Controllers\SessionController;
-use Alshahari\AuthTracker\Http\Controllers\TokenController;
+use Awsan\AuthTracker\Http\Controllers\DeviceController;
+use Awsan\AuthTracker\Http\Controllers\SessionController;
+use Awsan\AuthTracker\Http\Controllers\TokenController;
 use Illuminate\Contracts\Routing\Registrar as Router;
 
 /**

@@ -1,8 +1,8 @@
 <?php
 
-namespace Alshahari\AuthTracker\Support;
+namespace Awsan\AuthTracker\Support;
 
-use Alshahari\AuthTracker\Models\Login;
+use Awsan\AuthTracker\Models\Login;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Support\Arrayable;
 

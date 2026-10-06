@@ -1,8 +1,8 @@
 <?php
 
-namespace Alshahari\AuthTracker\Macros;
+namespace Awsan\AuthTracker\Macros;
 
-use Alshahari\AuthTracker\Facades\AuthTracker;
+use Awsan\AuthTracker\Facades\AuthTracker;
 
 class RouteMacros
 {

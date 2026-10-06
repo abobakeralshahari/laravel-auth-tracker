@@ -1,8 +1,8 @@
 <?php
 
-namespace Alshahari\AuthTracker\Events;
+namespace Awsan\AuthTracker\Events;
 
-use Alshahari\AuthTracker\RequestContext;
+use Awsan\AuthTracker\RequestContext;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Queue\SerializesModels;
 

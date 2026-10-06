@@ -1,8 +1,8 @@
 <?php
 
-namespace Alshahari\AuthTracker\Models;
+namespace Awsan\AuthTracker\Models;
 
-use Alshahari\AuthTracker\Facades\AuthTracker;
+use Awsan\AuthTracker\Facades\AuthTracker;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,9 +36,9 @@ class Device extends Model
         'blocked_at' => 'datetime',
     ];
 
-    protected static function newFactory(): \Alshahari\AuthTracker\Database\Factories\DeviceFactory
+    protected static function newFactory(): \Awsan\AuthTracker\Database\Factories\DeviceFactory
     {
-        return \Alshahari\AuthTracker\Database\Factories\DeviceFactory::new();
+        return \Awsan\AuthTracker\Database\Factories\DeviceFactory::new();
     }
 
     /**

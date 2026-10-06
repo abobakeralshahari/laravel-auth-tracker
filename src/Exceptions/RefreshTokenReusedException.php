@@ -1,6 +1,6 @@
 <?php
 
-namespace Alshahari\AuthTracker\Exceptions;
+namespace Awsan\AuthTracker\Exceptions;
 
 /**
  * A refresh token that was already rotated was presented again: either

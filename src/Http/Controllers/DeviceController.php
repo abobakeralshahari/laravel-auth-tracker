@@ -1,10 +1,10 @@
 <?php
 
-namespace Alshahari\AuthTracker\Http\Controllers;
+namespace Awsan\AuthTracker\Http\Controllers;
 
-use Alshahari\AuthTracker\Facades\AuthTracker;
-use Alshahari\AuthTracker\Http\Resources\DeviceResource;
-use Alshahari\AuthTracker\Models\Device;
+use Awsan\AuthTracker\Facades\AuthTracker;
+use Awsan\AuthTracker\Http\Resources\DeviceResource;
+use Awsan\AuthTracker\Models\Device;
 use Carbon\CarbonInterval;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Alshahari\AuthTracker\Commands;
+namespace Awsan\AuthTracker\Commands;
 
 use Illuminate\Console\Command;
 
@@ -42,7 +42,7 @@ class InstallCommand extends Command
 
         $this->components->bulletList([
             'Run "php artisan migrate".',
-            'Add the Alshahari\AuthTracker\Traits\AuthTracking trait to your authenticatable models.',
+            'Add the Awsan\AuthTracker\Traits\AuthTracking trait to your authenticatable models.',
             'Use the "eloquent-tracked" user provider driver in config/auth.php to track remembered sessions.',
         ]);
 

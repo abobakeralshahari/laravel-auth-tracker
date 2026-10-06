@@ -1,6 +1,6 @@
 <?php
 
-namespace Alshahari\AuthTracker\Interfaces;
+namespace Awsan\AuthTracker\Interfaces;
 
 interface UserAgentParser
 {

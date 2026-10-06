@@ -1,10 +1,10 @@
 <?php
 
-namespace Alshahari\AuthTracker\Factories;
+namespace Awsan\AuthTracker\Factories;
 
-use Alshahari\AuthTracker\Actions\ResolveDevice;
-use Alshahari\AuthTracker\Models\Device;
-use Alshahari\AuthTracker\Support\DeviceSignal;
+use Awsan\AuthTracker\Actions\ResolveDevice;
+use Awsan\AuthTracker\Models\Device;
+use Awsan\AuthTracker\Support\DeviceSignal;
 use Illuminate\Http\Request;
 use Illuminate\Validation\UnauthorizedException;
 

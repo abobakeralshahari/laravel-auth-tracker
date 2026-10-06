@@ -1,6 +1,6 @@
 <?php
 
-namespace Alshahari\AuthTracker\Tests;
+namespace Awsan\AuthTracker\Tests;
 
 use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\Client;

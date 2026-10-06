@@ -1,14 +1,14 @@
 <?php
 
-namespace Alshahari\AuthTracker\Actions;
+namespace Awsan\AuthTracker\Actions;
 
-use Alshahari\AuthTracker\Events\Login as LegacyLoginEvent;
-use Alshahari\AuthTracker\Events\SessionRotated;
-use Alshahari\AuthTracker\Events\SessionStarted;
-use Alshahari\AuthTracker\Models\Login;
-use Alshahari\AuthTracker\RequestContext;
-use Alshahari\AuthTracker\Support\Credential;
-use Alshahari\AuthTracker\TrackerManager;
+use Awsan\AuthTracker\Events\Login as LegacyLoginEvent;
+use Awsan\AuthTracker\Events\SessionRotated;
+use Awsan\AuthTracker\Events\SessionStarted;
+use Awsan\AuthTracker\Models\Login;
+use Awsan\AuthTracker\RequestContext;
+use Awsan\AuthTracker\Support\Credential;
+use Awsan\AuthTracker\TrackerManager;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 /**

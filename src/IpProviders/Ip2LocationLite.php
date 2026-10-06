@@ -1,8 +1,8 @@
 <?php
 
-namespace Alshahari\AuthTracker\IpProviders;
+namespace Awsan\AuthTracker\IpProviders;
 
-use Alshahari\AuthTracker\Interfaces\IpProvider;
+use Awsan\AuthTracker\Interfaces\IpProvider;
 use Illuminate\Support\Facades\DB;
 
 class Ip2LocationLite implements IpProvider

@@ -1,14 +1,14 @@
 <?php
 
-namespace Alshahari\AuthTracker;
+namespace Awsan\AuthTracker;
 
-use Alshahari\AuthTracker\Actions\ResolveDevice;
-use Alshahari\AuthTracker\Support\DeviceSignal;
-use Alshahari\AuthTracker\Factories\IpProviderFactory;
-use Alshahari\AuthTracker\Factories\ParserFactory;
-use Alshahari\AuthTracker\Interfaces\IpProvider;
-use Alshahari\AuthTracker\Interfaces\UserAgentParser;
-use Alshahari\AuthTracker\Models\Device;
+use Awsan\AuthTracker\Actions\ResolveDevice;
+use Awsan\AuthTracker\Support\DeviceSignal;
+use Awsan\AuthTracker\Factories\IpProviderFactory;
+use Awsan\AuthTracker\Factories\ParserFactory;
+use Awsan\AuthTracker\Interfaces\IpProvider;
+use Awsan\AuthTracker\Interfaces\UserAgentParser;
+use Awsan\AuthTracker\Models\Device;
 use Illuminate\Http\Request;
 
 /**

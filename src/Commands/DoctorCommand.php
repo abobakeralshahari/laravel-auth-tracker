@@ -1,8 +1,8 @@
 <?php
 
-namespace Alshahari\AuthTracker\Commands;
+namespace Awsan\AuthTracker\Commands;
 
-use Alshahari\AuthTracker\Facades\AuthTracker;
+use Awsan\AuthTracker\Facades\AuthTracker;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;

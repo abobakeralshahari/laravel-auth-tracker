@@ -1,8 +1,8 @@
 <?php
 
-namespace Alshahari\AuthTracker\Http\Controllers;
+namespace Awsan\AuthTracker\Http\Controllers;
 
-use Alshahari\AuthTracker\Facades\AuthTracker;
+use Awsan\AuthTracker\Facades\AuthTracker;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;

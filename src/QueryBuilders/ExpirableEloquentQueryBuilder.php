@@ -1,8 +1,8 @@
 <?php
 
-namespace Alshahari\AuthTracker\QueryBuilders;
+namespace Awsan\AuthTracker\QueryBuilders;
 
-use Alshahari\AuthTracker\Scopes\ExpirationScope;
+use Awsan\AuthTracker\Scopes\ExpirationScope;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 

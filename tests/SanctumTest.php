@@ -1,8 +1,8 @@
 <?php
 
-namespace Alshahari\AuthTracker\Tests;
+namespace Awsan\AuthTracker\Tests;
 
-use Alshahari\AuthTracker\Events\PersonalAccessTokenCreated;
+use Awsan\AuthTracker\Events\PersonalAccessTokenCreated;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class SanctumTest extends TestCase

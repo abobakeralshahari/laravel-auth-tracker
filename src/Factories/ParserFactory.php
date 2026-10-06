@@ -1,10 +1,10 @@
 <?php
 
-namespace Alshahari\AuthTracker\Factories;
+namespace Awsan\AuthTracker\Factories;
 
-use Alshahari\AuthTracker\Interfaces\UserAgentParser;
-use Alshahari\AuthTracker\Parsers\Agent;
-use Alshahari\AuthTracker\Parsers\WhichBrowser;
+use Awsan\AuthTracker\Interfaces\UserAgentParser;
+use Awsan\AuthTracker\Parsers\Agent;
+use Awsan\AuthTracker\Parsers\WhichBrowser;
 use InvalidArgumentException;
 
 class ParserFactory

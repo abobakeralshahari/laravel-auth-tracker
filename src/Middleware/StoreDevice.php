@@ -1,9 +1,9 @@
 <?php
 
-namespace Alshahari\AuthTracker\Middleware;
+namespace Awsan\AuthTracker\Middleware;
 
-use Alshahari\AuthTracker\Actions\ResolveDevice;
-use Alshahari\AuthTracker\Support\DeviceSignal;
+use Awsan\AuthTracker\Actions\ResolveDevice;
+use Awsan\AuthTracker\Support\DeviceSignal;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Validation\UnauthorizedException;

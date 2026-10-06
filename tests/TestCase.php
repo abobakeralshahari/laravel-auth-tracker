@@ -1,9 +1,9 @@
 <?php
 
-namespace Alshahari\AuthTracker\Tests;
+namespace Awsan\AuthTracker\Tests;
 
-use Alshahari\AuthTracker\Facades\AuthTracker;
-use Alshahari\AuthTracker\AuthTrackerServiceProvider;
+use Awsan\AuthTracker\Facades\AuthTracker;
+use Awsan\AuthTracker\AuthTrackerServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;

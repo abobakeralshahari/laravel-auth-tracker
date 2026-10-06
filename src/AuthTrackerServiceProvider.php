@@ -1,14 +1,14 @@
 <?php
 
-namespace Alshahari\AuthTracker;
+namespace Awsan\AuthTracker;
 
-use Alshahari\AuthTracker\Factories\IpProviderFactory;
-use Alshahari\AuthTracker\Listeners\AuthEventSubscriber;
-use Alshahari\AuthTracker\Listeners\PassportEventSubscriber;
-use Alshahari\AuthTracker\Listeners\SanctumEventSubscriber;
-use Alshahari\AuthTracker\Macros\RouteMacros;
-use Alshahari\AuthTracker\Middleware\EnsureDeviceNotBlocked;
-use Alshahari\AuthTracker\Middleware\StoreDevice;
+use Awsan\AuthTracker\Factories\IpProviderFactory;
+use Awsan\AuthTracker\Listeners\AuthEventSubscriber;
+use Awsan\AuthTracker\Listeners\PassportEventSubscriber;
+use Awsan\AuthTracker\Listeners\SanctumEventSubscriber;
+use Awsan\AuthTracker\Macros\RouteMacros;
+use Awsan\AuthTracker\Middleware\EnsureDeviceNotBlocked;
+use Awsan\AuthTracker\Middleware\StoreDevice;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;

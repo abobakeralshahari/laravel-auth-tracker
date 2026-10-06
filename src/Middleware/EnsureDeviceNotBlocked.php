@@ -1,8 +1,8 @@
 <?php
 
-namespace Alshahari\AuthTracker\Middleware;
+namespace Awsan\AuthTracker\Middleware;
 
-use Alshahari\AuthTracker\Actions\ResolveDevice;
+use Awsan\AuthTracker\Actions\ResolveDevice;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;

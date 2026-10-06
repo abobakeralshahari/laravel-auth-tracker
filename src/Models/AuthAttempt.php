@@ -1,6 +1,6 @@
 <?php
 
-namespace Alshahari\AuthTracker\Models;
+namespace Awsan\AuthTracker\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

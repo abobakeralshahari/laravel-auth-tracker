@@ -1,13 +1,13 @@
 <?php
 
-namespace Alshahari\AuthTracker;
+namespace Awsan\AuthTracker;
 
-use Alshahari\AuthTracker\Actions\ResolveDevice;
-use Alshahari\AuthTracker\Actions\RevokeLogin;
-use Alshahari\AuthTracker\Drivers\SessionDriver;
-use Alshahari\AuthTracker\Events\DeviceTrusted;
-use Alshahari\AuthTracker\Models\Device;
-use Alshahari\AuthTracker\Models\Login;
+use Awsan\AuthTracker\Actions\ResolveDevice;
+use Awsan\AuthTracker\Actions\RevokeLogin;
+use Awsan\AuthTracker\Drivers\SessionDriver;
+use Awsan\AuthTracker\Events\DeviceTrusted;
+use Awsan\AuthTracker\Models\Device;
+use Awsan\AuthTracker\Models\Login;
 use Carbon\CarbonInterval;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;

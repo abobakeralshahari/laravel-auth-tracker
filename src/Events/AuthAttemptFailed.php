@@ -1,8 +1,8 @@
 <?php
 
-namespace Alshahari\AuthTracker\Events;
+namespace Awsan\AuthTracker\Events;
 
-use Alshahari\AuthTracker\Models\AuthAttempt;
+use Awsan\AuthTracker\Models\AuthAttempt;
 
 class AuthAttemptFailed
 {

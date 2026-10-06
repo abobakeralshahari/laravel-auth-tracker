@@ -1,6 +1,6 @@
 <?php
 
-namespace Alshahari\AuthTracker\Scopes;
+namespace Awsan\AuthTracker\Scopes;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;

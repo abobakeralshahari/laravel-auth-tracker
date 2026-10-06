@@ -1,9 +1,9 @@
 <?php
 
-namespace Alshahari\AuthTracker\Actions;
+namespace Awsan\AuthTracker\Actions;
 
-use Alshahari\AuthTracker\Events\AuthAttemptFailed;
-use Alshahari\AuthTracker\Models\AuthAttempt;
+use Awsan\AuthTracker\Events\AuthAttemptFailed;
+use Awsan\AuthTracker\Models\AuthAttempt;
 use Illuminate\Http\Request;
 
 /**

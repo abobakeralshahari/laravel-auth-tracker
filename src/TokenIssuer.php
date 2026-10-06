@@ -1,14 +1,14 @@
 <?php
 
-namespace Alshahari\AuthTracker;
+namespace Awsan\AuthTracker;
 
-use Alshahari\AuthTracker\Actions\RecordLogin;
-use Alshahari\AuthTracker\Actions\RevokeLogin;
-use Alshahari\AuthTracker\Exceptions\InvalidRefreshTokenException;
-use Alshahari\AuthTracker\Exceptions\RefreshTokenReusedException;
-use Alshahari\AuthTracker\Models\Login;
-use Alshahari\AuthTracker\Support\Credential;
-use Alshahari\AuthTracker\Support\IssuedToken;
+use Awsan\AuthTracker\Actions\RecordLogin;
+use Awsan\AuthTracker\Actions\RevokeLogin;
+use Awsan\AuthTracker\Exceptions\InvalidRefreshTokenException;
+use Awsan\AuthTracker\Exceptions\RefreshTokenReusedException;
+use Awsan\AuthTracker\Models\Login;
+use Awsan\AuthTracker\Support\Credential;
+use Awsan\AuthTracker\Support\IssuedToken;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

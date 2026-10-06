@@ -1,12 +1,12 @@
 <?php
 
-namespace Alshahari\AuthTracker\Listeners;
+namespace Awsan\AuthTracker\Listeners;
 
-use Alshahari\AuthTracker\Actions\RecordLogin;
-use Alshahari\AuthTracker\Events\PersonalAccessTokenCreated;
-use Alshahari\AuthTracker\RequestContext;
-use Alshahari\AuthTracker\Support\Credential;
-use Alshahari\AuthTracker\TrackerManager;
+use Awsan\AuthTracker\Actions\RecordLogin;
+use Awsan\AuthTracker\Events\PersonalAccessTokenCreated;
+use Awsan\AuthTracker\RequestContext;
+use Awsan\AuthTracker\Support\Credential;
+use Awsan\AuthTracker\TrackerManager;
 use Carbon\Carbon;
 use Illuminate\Events\Dispatcher;
 

@@ -1,13 +1,13 @@
 <?php
 
-namespace Alshahari\AuthTracker\Http\Resources;
+namespace Awsan\AuthTracker\Http\Resources;
 
-use Alshahari\AuthTracker\Facades\AuthTracker;
+use Awsan\AuthTracker\Facades\AuthTracker;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \Alshahari\AuthTracker\Models\Device
+ * @mixin \Awsan\AuthTracker\Models\Device
  */
 class DeviceResource extends JsonResource
 {

@@ -1,16 +1,16 @@
 <?php
 
-namespace Alshahari\AuthTracker\Tests;
+namespace Awsan\AuthTracker\Tests;
 
-use Alshahari\AuthTracker\Actions\AssessRisk;
-use Alshahari\AuthTracker\Events\SessionLimitExceeded;
-use Alshahari\AuthTracker\Exceptions\InvalidRefreshTokenException;
-use Alshahari\AuthTracker\Exceptions\RefreshTokenReusedException;
-use Alshahari\AuthTracker\Exceptions\SessionLimitExceededException;
-use Alshahari\AuthTracker\Facades\AuthTracker;
-use Alshahari\AuthTracker\Models\AuthAttempt;
-use Alshahari\AuthTracker\Models\Device;
-use Alshahari\AuthTracker\Models\Login;
+use Awsan\AuthTracker\Actions\AssessRisk;
+use Awsan\AuthTracker\Events\SessionLimitExceeded;
+use Awsan\AuthTracker\Exceptions\InvalidRefreshTokenException;
+use Awsan\AuthTracker\Exceptions\RefreshTokenReusedException;
+use Awsan\AuthTracker\Exceptions\SessionLimitExceededException;
+use Awsan\AuthTracker\Facades\AuthTracker;
+use Awsan\AuthTracker\Models\AuthAttempt;
+use Awsan\AuthTracker\Models\Device;
+use Awsan\AuthTracker\Models\Login;
 use Carbon\CarbonInterval;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;

@@ -1,11 +1,11 @@
 <?php
 
-namespace Alshahari\AuthTracker\Actions;
+namespace Awsan\AuthTracker\Actions;
 
-use Alshahari\AuthTracker\Events\SessionLimitExceeded;
-use Alshahari\AuthTracker\Exceptions\SessionLimitExceededException;
-use Alshahari\AuthTracker\Models\Login;
-use Alshahari\AuthTracker\TrackerManager;
+use Awsan\AuthTracker\Events\SessionLimitExceeded;
+use Awsan\AuthTracker\Exceptions\SessionLimitExceededException;
+use Awsan\AuthTracker\Models\Login;
+use Awsan\AuthTracker\TrackerManager;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 

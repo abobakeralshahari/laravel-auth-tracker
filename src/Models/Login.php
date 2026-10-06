@@ -1,11 +1,11 @@
 <?php
 
-namespace Alshahari\AuthTracker\Models;
+namespace Awsan\AuthTracker\Models;
 
-use Alshahari\AuthTracker\Actions\RevokeLogin;
-use Alshahari\AuthTracker\EloquentQueryBuilder;
-use Alshahari\AuthTracker\Facades\AuthTracker;
-use Alshahari\AuthTracker\Traits\Expirable;
+use Awsan\AuthTracker\Actions\RevokeLogin;
+use Awsan\AuthTracker\EloquentQueryBuilder;
+use Awsan\AuthTracker\Facades\AuthTracker;
+use Awsan\AuthTracker\Traits\Expirable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -90,9 +90,9 @@ class Login extends Model
      */
     protected $appends = ['is_current'];
 
-    protected static function newFactory(): \Alshahari\AuthTracker\Database\Factories\LoginFactory
+    protected static function newFactory(): \Awsan\AuthTracker\Database\Factories\LoginFactory
     {
-        return \Alshahari\AuthTracker\Database\Factories\LoginFactory::new();
+        return \Awsan\AuthTracker\Database\Factories\LoginFactory::new();
     }
 
     /**

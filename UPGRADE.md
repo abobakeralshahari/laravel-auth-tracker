@@ -1,10 +1,23 @@
 # Upgrade Guide
 
+## Package name and namespace (2.2)
+
+The package is now published as `owaiskit/auth-tracker` with the namespace
+`OwaisKit\AuthTracker`. Table names, config keys and publish tags are unchanged.
+
+```bash
+composer remove abobakeralshahari/laravel-auth-tracker
+composer require owaiskit/auth-tracker
+```
+
+Replace `Alshahari\AuthTracker` with `OwaisKit\AuthTracker` in your imports and in
+`config/auth_tracker.php` if you published it.
+
 ## From 1.x to 2.0
 
 ### Requirements
 
-- PHP 8.2+, Laravel 11 or 12.
+- PHP 8.2+, Laravel 11, 12 or 13.
 - Laravel Passport 13 / Laravel Sanctum 4 when tracking API tokens.
 - `jenssegers/agent` is now a hard dependency. `whichbrowser/parser` is optional
   (`'parser' => 'whichbrowser'`), the default parser is now `agent`.

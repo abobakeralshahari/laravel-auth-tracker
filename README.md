@@ -9,7 +9,7 @@ with rotating refresh tokens.
 Companion package: [laravel-push-manager](../laravel-push-manager)
 (FCM tokens linked to devices and logins).
 
-- PHP 8.2+, Laravel 11 / 12
+- PHP 8.2+, Laravel 11 / 12 / 13
 - Sanctum 4, Passport 13 (optional)
 - Upgrading from 1.x? See [UPGRADE.md](UPGRADE.md).
 

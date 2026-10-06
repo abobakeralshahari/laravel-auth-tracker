@@ -1,6 +1,6 @@
 <?php
 
-namespace Awsan\AuthTracker\Events;
+namespace OwaisKit\AuthTracker\Events;
 
 use Illuminate\Queue\SerializesModels;
 use Laravel\Sanctum\NewAccessToken;

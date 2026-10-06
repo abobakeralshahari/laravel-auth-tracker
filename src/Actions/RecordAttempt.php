@@ -1,9 +1,9 @@
 <?php
 
-namespace Awsan\AuthTracker\Actions;
+namespace OwaisKit\AuthTracker\Actions;
 
-use Awsan\AuthTracker\Events\AuthAttemptFailed;
-use Awsan\AuthTracker\Models\AuthAttempt;
+use OwaisKit\AuthTracker\Events\AuthAttemptFailed;
+use OwaisKit\AuthTracker\Models\AuthAttempt;
 use Illuminate\Http\Request;
 
 /**

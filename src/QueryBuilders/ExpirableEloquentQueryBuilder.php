@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\QueryBuilders;
+namespace OwaisKit\AuthTracker\QueryBuilders;
 
-use Awsan\AuthTracker\Scopes\ExpirationScope;
+use OwaisKit\AuthTracker\Scopes\ExpirationScope;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 

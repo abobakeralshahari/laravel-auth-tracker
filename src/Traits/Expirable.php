@@ -1,9 +1,9 @@
 <?php
 
-namespace Awsan\AuthTracker\Traits;
+namespace OwaisKit\AuthTracker\Traits;
 
-use Awsan\AuthTracker\QueryBuilders\ExpirableEloquentQueryBuilder;
-use Awsan\AuthTracker\Scopes\ExpirationScope;
+use OwaisKit\AuthTracker\QueryBuilders\ExpirableEloquentQueryBuilder;
+use OwaisKit\AuthTracker\Scopes\ExpirationScope;
 use Carbon\Carbon;
 use Illuminate\Support\Collection as BaseCollection;
 

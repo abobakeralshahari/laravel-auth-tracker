@@ -1,14 +1,14 @@
 <?php
 
-namespace Awsan\AuthTracker\Actions;
+namespace OwaisKit\AuthTracker\Actions;
 
-use Awsan\AuthTracker\Events\Login as LegacyLoginEvent;
-use Awsan\AuthTracker\Events\SessionRotated;
-use Awsan\AuthTracker\Events\SessionStarted;
-use Awsan\AuthTracker\Models\Login;
-use Awsan\AuthTracker\RequestContext;
-use Awsan\AuthTracker\Support\Credential;
-use Awsan\AuthTracker\TrackerManager;
+use OwaisKit\AuthTracker\Events\Login as LegacyLoginEvent;
+use OwaisKit\AuthTracker\Events\SessionRotated;
+use OwaisKit\AuthTracker\Events\SessionStarted;
+use OwaisKit\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\RequestContext;
+use OwaisKit\AuthTracker\Support\Credential;
+use OwaisKit\AuthTracker\TrackerManager;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 /**

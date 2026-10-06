@@ -1,9 +1,9 @@
 <?php
 
-namespace Awsan\AuthTracker\Tests;
+namespace OwaisKit\AuthTracker\Tests;
 
-use Awsan\AuthTracker\Facades\AuthTracker;
-use Awsan\AuthTracker\Models\Device;
+use OwaisKit\AuthTracker\Facades\AuthTracker;
+use OwaisKit\AuthTracker\Models\Device;
 use Illuminate\Support\Facades\Auth;
 
 class DeviceTest extends TestCase

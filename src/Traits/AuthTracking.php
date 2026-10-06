@@ -1,10 +1,10 @@
 <?php
 
-namespace Awsan\AuthTracker\Traits;
+namespace OwaisKit\AuthTracker\Traits;
 
-use Awsan\AuthTracker\Actions\RevokeLogin;
-use Awsan\AuthTracker\Facades\AuthTracker;
-use Awsan\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\Actions\RevokeLogin;
+use OwaisKit\AuthTracker\Facades\AuthTracker;
+use OwaisKit\AuthTracker\Models\Login;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 

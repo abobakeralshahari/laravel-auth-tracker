@@ -1,9 +1,9 @@
 <?php
 
-namespace Awsan\AuthTracker\Events;
+namespace OwaisKit\AuthTracker\Events;
 
-use Awsan\AuthTracker\Models\Login;
-use Awsan\AuthTracker\RequestContext;
+use OwaisKit\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\RequestContext;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 /**

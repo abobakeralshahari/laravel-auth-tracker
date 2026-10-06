@@ -1,9 +1,9 @@
 <?php
 
-namespace Awsan\AuthTracker;
+namespace OwaisKit\AuthTracker;
 
-use Awsan\AuthTracker\Actions\RevokeLogin;
-use Awsan\AuthTracker\QueryBuilders\ExpirableEloquentQueryBuilder;
+use OwaisKit\AuthTracker\Actions\RevokeLogin;
+use OwaisKit\AuthTracker\QueryBuilders\ExpirableEloquentQueryBuilder;
 
 class EloquentQueryBuilder extends ExpirableEloquentQueryBuilder
 {

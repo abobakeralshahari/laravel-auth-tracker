@@ -1,14 +1,14 @@
 <?php
 
-namespace Awsan\AuthTracker;
+namespace OwaisKit\AuthTracker;
 
-use Awsan\AuthTracker\Factories\IpProviderFactory;
-use Awsan\AuthTracker\Listeners\AuthEventSubscriber;
-use Awsan\AuthTracker\Listeners\PassportEventSubscriber;
-use Awsan\AuthTracker\Listeners\SanctumEventSubscriber;
-use Awsan\AuthTracker\Macros\RouteMacros;
-use Awsan\AuthTracker\Middleware\EnsureDeviceNotBlocked;
-use Awsan\AuthTracker\Middleware\StoreDevice;
+use OwaisKit\AuthTracker\Factories\IpProviderFactory;
+use OwaisKit\AuthTracker\Listeners\AuthEventSubscriber;
+use OwaisKit\AuthTracker\Listeners\PassportEventSubscriber;
+use OwaisKit\AuthTracker\Listeners\SanctumEventSubscriber;
+use OwaisKit\AuthTracker\Macros\RouteMacros;
+use OwaisKit\AuthTracker\Middleware\EnsureDeviceNotBlocked;
+use OwaisKit\AuthTracker\Middleware\StoreDevice;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;

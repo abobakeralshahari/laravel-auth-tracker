@@ -1,9 +1,9 @@
 <?php
 
-namespace Awsan\AuthTracker\Actions;
+namespace OwaisKit\AuthTracker\Actions;
 
-use Awsan\AuthTracker\Events\SuspiciousLogin;
-use Awsan\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\Events\SuspiciousLogin;
+use OwaisKit\AuthTracker\Models\Login;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 /**

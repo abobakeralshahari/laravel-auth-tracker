@@ -1,11 +1,11 @@
 <?php
 
-namespace Awsan\AuthTracker\Models;
+namespace OwaisKit\AuthTracker\Models;
 
-use Awsan\AuthTracker\Actions\RevokeLogin;
-use Awsan\AuthTracker\EloquentQueryBuilder;
-use Awsan\AuthTracker\Facades\AuthTracker;
-use Awsan\AuthTracker\Traits\Expirable;
+use OwaisKit\AuthTracker\Actions\RevokeLogin;
+use OwaisKit\AuthTracker\EloquentQueryBuilder;
+use OwaisKit\AuthTracker\Facades\AuthTracker;
+use OwaisKit\AuthTracker\Traits\Expirable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -90,9 +90,9 @@ class Login extends Model
      */
     protected $appends = ['is_current'];
 
-    protected static function newFactory(): \Awsan\AuthTracker\Database\Factories\LoginFactory
+    protected static function newFactory(): \OwaisKit\AuthTracker\Database\Factories\LoginFactory
     {
-        return \Awsan\AuthTracker\Database\Factories\LoginFactory::new();
+        return \OwaisKit\AuthTracker\Database\Factories\LoginFactory::new();
     }
 
     /**

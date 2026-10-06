@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Events;
+namespace OwaisKit\AuthTracker\Events;
 
-use Awsan\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\Models\Login;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 

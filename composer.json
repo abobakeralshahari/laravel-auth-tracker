@@ -1,5 +1,5 @@
 {
-    "name": "awsan/auth-tracker",
+    "name": "owaiskit/auth-tracker",
     "description": "Track and manage sessions, devices, Passport tokens and Sanctum tokens in Laravel.",
     "keywords": ["laravel", "auth", "sessions", "devices", "sanctum", "passport", "tracking"],
     "license": "MIT",
@@ -41,13 +41,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Awsan\\AuthTracker\\": "src",
-            "Awsan\\AuthTracker\\Database\\Factories\\": "database/factories"
+            "OwaisKit\\AuthTracker\\": "src",
+            "OwaisKit\\AuthTracker\\Database\\Factories\\": "database/factories"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Awsan\\AuthTracker\\Tests\\": "tests"
+            "OwaisKit\\AuthTracker\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -56,7 +56,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Awsan\\AuthTracker\\AuthTrackerServiceProvider"
+                "OwaisKit\\AuthTracker\\AuthTrackerServiceProvider"
             ]
         }
     },

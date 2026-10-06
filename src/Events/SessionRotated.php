@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Events;
+namespace OwaisKit\AuthTracker\Events;
 
-use Awsan\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\Models\Login;
 
 /**
  * The credential of a login was replaced (token refresh).

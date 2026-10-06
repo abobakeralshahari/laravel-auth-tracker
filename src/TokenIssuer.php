@@ -1,14 +1,14 @@
 <?php
 
-namespace Awsan\AuthTracker;
+namespace OwaisKit\AuthTracker;
 
-use Awsan\AuthTracker\Actions\RecordLogin;
-use Awsan\AuthTracker\Actions\RevokeLogin;
-use Awsan\AuthTracker\Exceptions\InvalidRefreshTokenException;
-use Awsan\AuthTracker\Exceptions\RefreshTokenReusedException;
-use Awsan\AuthTracker\Models\Login;
-use Awsan\AuthTracker\Support\Credential;
-use Awsan\AuthTracker\Support\IssuedToken;
+use OwaisKit\AuthTracker\Actions\RecordLogin;
+use OwaisKit\AuthTracker\Actions\RevokeLogin;
+use OwaisKit\AuthTracker\Exceptions\InvalidRefreshTokenException;
+use OwaisKit\AuthTracker\Exceptions\RefreshTokenReusedException;
+use OwaisKit\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\Support\Credential;
+use OwaisKit\AuthTracker\Support\IssuedToken;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

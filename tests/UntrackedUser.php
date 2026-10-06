@@ -1,6 +1,6 @@
 <?php
 
-namespace Awsan\AuthTracker\Tests;
+namespace OwaisKit\AuthTracker\Tests;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 

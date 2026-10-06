@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Exceptions;
+namespace OwaisKit\AuthTracker\Exceptions;
 
-use Awsan\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\Models\Login;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use RuntimeException;

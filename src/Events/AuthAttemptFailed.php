@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Events;
+namespace OwaisKit\AuthTracker\Events;
 
-use Awsan\AuthTracker\Models\AuthAttempt;
+use OwaisKit\AuthTracker\Models\AuthAttempt;
 
 class AuthAttemptFailed
 {

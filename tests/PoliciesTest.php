@@ -1,16 +1,16 @@
 <?php
 
-namespace Awsan\AuthTracker\Tests;
+namespace OwaisKit\AuthTracker\Tests;
 
-use Awsan\AuthTracker\Actions\AssessRisk;
-use Awsan\AuthTracker\Events\SessionLimitExceeded;
-use Awsan\AuthTracker\Exceptions\InvalidRefreshTokenException;
-use Awsan\AuthTracker\Exceptions\RefreshTokenReusedException;
-use Awsan\AuthTracker\Exceptions\SessionLimitExceededException;
-use Awsan\AuthTracker\Facades\AuthTracker;
-use Awsan\AuthTracker\Models\AuthAttempt;
-use Awsan\AuthTracker\Models\Device;
-use Awsan\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\Actions\AssessRisk;
+use OwaisKit\AuthTracker\Events\SessionLimitExceeded;
+use OwaisKit\AuthTracker\Exceptions\InvalidRefreshTokenException;
+use OwaisKit\AuthTracker\Exceptions\RefreshTokenReusedException;
+use OwaisKit\AuthTracker\Exceptions\SessionLimitExceededException;
+use OwaisKit\AuthTracker\Facades\AuthTracker;
+use OwaisKit\AuthTracker\Models\AuthAttempt;
+use OwaisKit\AuthTracker\Models\Device;
+use OwaisKit\AuthTracker\Models\Login;
 use Carbon\CarbonInterval;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;

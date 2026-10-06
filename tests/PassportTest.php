@@ -1,6 +1,6 @@
 <?php
 
-namespace Awsan\AuthTracker\Tests;
+namespace OwaisKit\AuthTracker\Tests;
 
 use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\Client;

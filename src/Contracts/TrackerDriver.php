@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Contracts;
+namespace OwaisKit\AuthTracker\Contracts;
 
-use Awsan\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\Models\Login;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 /**

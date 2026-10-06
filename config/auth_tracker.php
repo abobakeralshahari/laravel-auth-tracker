@@ -38,10 +38,10 @@ return [
     |
     */
 
-    'device_model' => Awsan\AuthTracker\Models\Device::class,
+    'device_model' => OwaisKit\AuthTracker\Models\Device::class,
 
     'models' => [
-        'login' => Awsan\AuthTracker\Models\Login::class,
+        'login' => OwaisKit\AuthTracker\Models\Login::class,
     ],
 
     /*
@@ -239,7 +239,7 @@ return [
 
         /*
         | Seconds to wait while connecting to the provider API. On timeout the
-        | lookup is skipped and Awsan\AuthTracker\Events\FailedApiCall
+        | lookup is skipped and OwaisKit\AuthTracker\Events\FailedApiCall
         | is dispatched. Use 0 to wait indefinitely.
         */
 

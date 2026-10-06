@@ -1,11 +1,11 @@
 <?php
 
-namespace Awsan\AuthTracker\Actions;
+namespace OwaisKit\AuthTracker\Actions;
 
-use Awsan\AuthTracker\Events\SessionLimitExceeded;
-use Awsan\AuthTracker\Exceptions\SessionLimitExceededException;
-use Awsan\AuthTracker\Models\Login;
-use Awsan\AuthTracker\TrackerManager;
+use OwaisKit\AuthTracker\Events\SessionLimitExceeded;
+use OwaisKit\AuthTracker\Exceptions\SessionLimitExceededException;
+use OwaisKit\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\TrackerManager;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 

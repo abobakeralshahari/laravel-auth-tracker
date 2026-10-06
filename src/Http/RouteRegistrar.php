@@ -1,10 +1,10 @@
 <?php
 
-namespace Awsan\AuthTracker\Http;
+namespace OwaisKit\AuthTracker\Http;
 
-use Awsan\AuthTracker\Http\Controllers\DeviceController;
-use Awsan\AuthTracker\Http\Controllers\SessionController;
-use Awsan\AuthTracker\Http\Controllers\TokenController;
+use OwaisKit\AuthTracker\Http\Controllers\DeviceController;
+use OwaisKit\AuthTracker\Http\Controllers\SessionController;
+use OwaisKit\AuthTracker\Http\Controllers\TokenController;
 use Illuminate\Contracts\Routing\Registrar as Router;
 
 /**

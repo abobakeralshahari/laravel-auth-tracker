@@ -1,9 +1,9 @@
 <?php
 
-namespace Awsan\AuthTracker\IpProviders;
+namespace OwaisKit\AuthTracker\IpProviders;
 
-use Awsan\AuthTracker\Interfaces\IpProvider;
-use Awsan\AuthTracker\Traits\MakesApiCalls;
+use OwaisKit\AuthTracker\Interfaces\IpProvider;
+use OwaisKit\AuthTracker\Traits\MakesApiCalls;
 use GuzzleHttp\Psr7\Request;
 
 class IpApi implements IpProvider

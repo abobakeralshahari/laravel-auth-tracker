@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Commands;
+namespace OwaisKit\AuthTracker\Commands;
 
-use Awsan\AuthTracker\Facades\AuthTracker;
+use OwaisKit\AuthTracker\Facades\AuthTracker;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;

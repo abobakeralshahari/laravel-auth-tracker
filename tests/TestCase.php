@@ -1,9 +1,9 @@
 <?php
 
-namespace Awsan\AuthTracker\Tests;
+namespace OwaisKit\AuthTracker\Tests;
 
-use Awsan\AuthTracker\Facades\AuthTracker;
-use Awsan\AuthTracker\AuthTrackerServiceProvider;
+use OwaisKit\AuthTracker\Facades\AuthTracker;
+use OwaisKit\AuthTracker\AuthTrackerServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;

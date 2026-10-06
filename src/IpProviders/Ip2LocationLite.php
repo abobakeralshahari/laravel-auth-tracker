@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\IpProviders;
+namespace OwaisKit\AuthTracker\IpProviders;
 
-use Awsan\AuthTracker\Interfaces\IpProvider;
+use OwaisKit\AuthTracker\Interfaces\IpProvider;
 use Illuminate\Support\Facades\DB;
 
 class Ip2LocationLite implements IpProvider

@@ -1,10 +1,10 @@
 <?php
 
-namespace Awsan\AuthTracker\Factories;
+namespace OwaisKit\AuthTracker\Factories;
 
-use Awsan\AuthTracker\Actions\ResolveDevice;
-use Awsan\AuthTracker\Models\Device;
-use Awsan\AuthTracker\Support\DeviceSignal;
+use OwaisKit\AuthTracker\Actions\ResolveDevice;
+use OwaisKit\AuthTracker\Models\Device;
+use OwaisKit\AuthTracker\Support\DeviceSignal;
 use Illuminate\Http\Request;
 use Illuminate\Validation\UnauthorizedException;
 

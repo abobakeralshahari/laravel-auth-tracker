@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Events;
+namespace OwaisKit\AuthTracker\Events;
 
-use Awsan\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\Models\Login;
 
 /**
  * A tracked login was revoked (user logout, "logout others", admin...).

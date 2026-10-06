@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Macros;
+namespace OwaisKit\AuthTracker\Macros;
 
-use Awsan\AuthTracker\Facades\AuthTracker;
+use OwaisKit\AuthTracker\Facades\AuthTracker;
 
 class RouteMacros
 {

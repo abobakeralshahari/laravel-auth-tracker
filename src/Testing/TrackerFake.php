@@ -1,13 +1,13 @@
 <?php
 
-namespace Awsan\AuthTracker\Testing;
+namespace OwaisKit\AuthTracker\Testing;
 
-use Awsan\AuthTracker\Events\SessionRevoked;
-use Awsan\AuthTracker\Events\SessionStarted;
-use Awsan\AuthTracker\Events\SuspiciousLogin;
-use Awsan\AuthTracker\Facades\AuthTracker;
-use Awsan\AuthTracker\Models\Login;
-use Awsan\AuthTracker\TrackerManager;
+use OwaisKit\AuthTracker\Events\SessionRevoked;
+use OwaisKit\AuthTracker\Events\SessionStarted;
+use OwaisKit\AuthTracker\Events\SuspiciousLogin;
+use OwaisKit\AuthTracker\Facades\AuthTracker;
+use OwaisKit\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\TrackerManager;
 use Closure;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Foundation\Application;

@@ -1,10 +1,10 @@
 <?php
 
-namespace Awsan\AuthTracker\Http\Controllers;
+namespace OwaisKit\AuthTracker\Http\Controllers;
 
-use Awsan\AuthTracker\Facades\AuthTracker;
-use Awsan\AuthTracker\Http\Resources\DeviceResource;
-use Awsan\AuthTracker\Models\Device;
+use OwaisKit\AuthTracker\Facades\AuthTracker;
+use OwaisKit\AuthTracker\Http\Resources\DeviceResource;
+use OwaisKit\AuthTracker\Models\Device;
 use Carbon\CarbonInterval;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

@@ -1,9 +1,9 @@
 <?php
 
-namespace Awsan\AuthTracker\Commands;
+namespace OwaisKit\AuthTracker\Commands;
 
-use Awsan\AuthTracker\Facades\AuthTracker;
-use Awsan\AuthTracker\Models\AuthAttempt;
+use OwaisKit\AuthTracker\Facades\AuthTracker;
+use OwaisKit\AuthTracker\Models\AuthAttempt;
 use Illuminate\Console\Command;
 
 /**

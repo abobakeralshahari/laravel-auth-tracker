@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Database\Factories;
+namespace OwaisKit\AuthTracker\Database\Factories;
 
-use Awsan\AuthTracker\Models\Device;
+use OwaisKit\AuthTracker\Models\Device;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

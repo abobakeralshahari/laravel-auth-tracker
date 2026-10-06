@@ -1,6 +1,6 @@
 <?php
 
-namespace Awsan\AuthTracker\Interfaces;
+namespace OwaisKit\AuthTracker\Interfaces;
 
 use GuzzleHttp\Psr7\Request;
 

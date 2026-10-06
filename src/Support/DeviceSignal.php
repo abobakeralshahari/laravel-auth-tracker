@@ -1,6 +1,6 @@
 <?php
 
-namespace Awsan\AuthTracker\Support;
+namespace OwaisKit\AuthTracker\Support;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;

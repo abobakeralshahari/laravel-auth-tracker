@@ -1,12 +1,12 @@
 <?php
 
-namespace Awsan\AuthTracker\Http\Resources;
+namespace OwaisKit\AuthTracker\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \Awsan\AuthTracker\Models\Login
+ * @mixin \OwaisKit\AuthTracker\Models\Login
  */
 class SessionResource extends JsonResource
 {

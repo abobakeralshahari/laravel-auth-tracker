@@ -1,10 +1,10 @@
 <?php
 
-namespace Awsan\AuthTracker\Http\Controllers;
+namespace OwaisKit\AuthTracker\Http\Controllers;
 
-use Awsan\AuthTracker\Actions\RevokeLogin;
-use Awsan\AuthTracker\Facades\AuthTracker;
-use Awsan\AuthTracker\Http\Resources\SessionResource;
+use OwaisKit\AuthTracker\Actions\RevokeLogin;
+use OwaisKit\AuthTracker\Facades\AuthTracker;
+use OwaisKit\AuthTracker\Http\Resources\SessionResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

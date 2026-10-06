@@ -1,14 +1,14 @@
 <?php
 
-namespace Awsan\AuthTracker;
+namespace OwaisKit\AuthTracker;
 
-use Awsan\AuthTracker\Actions\ResolveDevice;
-use Awsan\AuthTracker\Support\DeviceSignal;
-use Awsan\AuthTracker\Factories\IpProviderFactory;
-use Awsan\AuthTracker\Factories\ParserFactory;
-use Awsan\AuthTracker\Interfaces\IpProvider;
-use Awsan\AuthTracker\Interfaces\UserAgentParser;
-use Awsan\AuthTracker\Models\Device;
+use OwaisKit\AuthTracker\Actions\ResolveDevice;
+use OwaisKit\AuthTracker\Support\DeviceSignal;
+use OwaisKit\AuthTracker\Factories\IpProviderFactory;
+use OwaisKit\AuthTracker\Factories\ParserFactory;
+use OwaisKit\AuthTracker\Interfaces\IpProvider;
+use OwaisKit\AuthTracker\Interfaces\UserAgentParser;
+use OwaisKit\AuthTracker\Models\Device;
 use Illuminate\Http\Request;
 
 /**

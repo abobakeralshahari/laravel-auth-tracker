@@ -16,13 +16,13 @@ Companion package: [laravel-push-manager](../laravel-push-manager)
 ## Installation
 
 ```bash
-composer require awsan/auth-tracker
+composer require owaiskit/auth-tracker
 php artisan tracker:install
 php artisan migrate
 ```
 
 ```php
-use Awsan\AuthTracker\Traits\AuthTracking;
+use OwaisKit\AuthTracker\Traits\AuthTracking;
 
 class User extends Authenticatable
 {
@@ -54,7 +54,7 @@ request ──► ResolveDevice ──► Device (udid, os, app version, fcm tok
 - **Session logins** (any guard with the `session` driver, Filament included)
   are tracked from Laravel's `Login` event. The login id is stored in the
   session, so a session id regeneration after login is handled.
-- **Sanctum**: dispatch `Awsan\AuthTracker\Events\PersonalAccessTokenCreated`
+- **Sanctum**: dispatch `OwaisKit\AuthTracker\Events\PersonalAccessTokenCreated`
   after `createToken()`, or use `AuthTracker::issueToken()` (see below).
 - **Passport**: tracked from `AccessTokenCreated`; a refresh rotates the
   credential of the existing login instead of creating a new one.
@@ -78,7 +78,7 @@ AuthTracker::extend('jwt', fn ($app) => new JwtTrackerDriver);
 ## Usage
 
 ```php
-use Awsan\AuthTracker\Facades\AuthTracker;
+use OwaisKit\AuthTracker\Facades\AuthTracker;
 
 // Through the model
 $user->currentLogin();

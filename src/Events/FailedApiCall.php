@@ -1,6 +1,6 @@
 <?php
 
-namespace Awsan\AuthTracker\Events;
+namespace OwaisKit\AuthTracker\Events;
 
 use GuzzleHttp\Exception\TransferException;
 use Illuminate\Queue\SerializesModels;

@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Http\Controllers;
+namespace OwaisKit\AuthTracker\Http\Controllers;
 
-use Awsan\AuthTracker\Facades\AuthTracker;
+use OwaisKit\AuthTracker\Facades\AuthTracker;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;

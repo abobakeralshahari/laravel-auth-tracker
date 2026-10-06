@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Support;
+namespace OwaisKit\AuthTracker\Support;
 
-use Awsan\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\Models\Login;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Support\Arrayable;
 

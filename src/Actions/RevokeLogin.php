@@ -1,10 +1,10 @@
 <?php
 
-namespace Awsan\AuthTracker\Actions;
+namespace OwaisKit\AuthTracker\Actions;
 
-use Awsan\AuthTracker\Events\SessionRevoked;
-use Awsan\AuthTracker\Models\Login;
-use Awsan\AuthTracker\TrackerManager;
+use OwaisKit\AuthTracker\Events\SessionRevoked;
+use OwaisKit\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\TrackerManager;
 use Illuminate\Support\Collection;
 use Throwable;
 

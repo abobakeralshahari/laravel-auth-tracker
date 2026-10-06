@@ -1,13 +1,13 @@
 <?php
 
-namespace Awsan\AuthTracker;
+namespace OwaisKit\AuthTracker;
 
-use Awsan\AuthTracker\Actions\ResolveDevice;
-use Awsan\AuthTracker\Actions\RevokeLogin;
-use Awsan\AuthTracker\Drivers\SessionDriver;
-use Awsan\AuthTracker\Events\DeviceTrusted;
-use Awsan\AuthTracker\Models\Device;
-use Awsan\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\Actions\ResolveDevice;
+use OwaisKit\AuthTracker\Actions\RevokeLogin;
+use OwaisKit\AuthTracker\Drivers\SessionDriver;
+use OwaisKit\AuthTracker\Events\DeviceTrusted;
+use OwaisKit\AuthTracker\Models\Device;
+use OwaisKit\AuthTracker\Models\Login;
 use Carbon\CarbonInterval;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;

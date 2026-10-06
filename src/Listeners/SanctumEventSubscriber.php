@@ -1,12 +1,12 @@
 <?php
 
-namespace Awsan\AuthTracker\Listeners;
+namespace OwaisKit\AuthTracker\Listeners;
 
-use Awsan\AuthTracker\Actions\RecordLogin;
-use Awsan\AuthTracker\Events\PersonalAccessTokenCreated;
-use Awsan\AuthTracker\RequestContext;
-use Awsan\AuthTracker\Support\Credential;
-use Awsan\AuthTracker\TrackerManager;
+use OwaisKit\AuthTracker\Actions\RecordLogin;
+use OwaisKit\AuthTracker\Events\PersonalAccessTokenCreated;
+use OwaisKit\AuthTracker\RequestContext;
+use OwaisKit\AuthTracker\Support\Credential;
+use OwaisKit\AuthTracker\TrackerManager;
 use Carbon\Carbon;
 use Illuminate\Events\Dispatcher;
 

@@ -1,14 +1,14 @@
 <?php
 
-namespace Awsan\AuthTracker;
+namespace OwaisKit\AuthTracker;
 
-use Awsan\AuthTracker\Contracts\TrackerDriver;
-use Awsan\AuthTracker\Drivers\PassportDriver;
-use Awsan\AuthTracker\Drivers\SanctumDriver;
-use Awsan\AuthTracker\Drivers\SessionDriver;
-use Awsan\AuthTracker\Support\DeviceSignal;
-use Awsan\AuthTracker\Support\IssuedToken;
-use Awsan\AuthTracker\Traits\AuthTracking;
+use OwaisKit\AuthTracker\Contracts\TrackerDriver;
+use OwaisKit\AuthTracker\Drivers\PassportDriver;
+use OwaisKit\AuthTracker\Drivers\SanctumDriver;
+use OwaisKit\AuthTracker\Drivers\SessionDriver;
+use OwaisKit\AuthTracker\Support\DeviceSignal;
+use OwaisKit\AuthTracker\Support\IssuedToken;
+use OwaisKit\AuthTracker\Traits\AuthTracking;
 use Closure;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
@@ -20,7 +20,7 @@ use InvalidArgumentException;
  * runtime customizations and forwards the session operations to the
  * SessionManager.
  *
- * @mixin \Awsan\AuthTracker\SessionManager
+ * @mixin \OwaisKit\AuthTracker\SessionManager
  */
 class TrackerManager extends Manager
 {
@@ -195,7 +195,7 @@ class TrackerManager extends Manager
     // ------------------------------------------------------------------
 
     /**
-     * @return class-string<\Awsan\AuthTracker\Models\Device>
+     * @return class-string<\OwaisKit\AuthTracker\Models\Device>
      */
     public function deviceModel(): string
     {
@@ -203,7 +203,7 @@ class TrackerManager extends Manager
     }
 
     /**
-     * @return class-string<\Awsan\AuthTracker\Models\Login>
+     * @return class-string<\OwaisKit\AuthTracker\Models\Login>
      */
     public function loginModel(): string
     {
@@ -272,7 +272,7 @@ class TrackerManager extends Manager
     }
 
     /**
-     * @throws \Awsan\AuthTracker\Exceptions\InvalidRefreshTokenException
+     * @throws \OwaisKit\AuthTracker\Exceptions\InvalidRefreshTokenException
      */
     public function refreshToken(string $refreshToken): IssuedToken
     {

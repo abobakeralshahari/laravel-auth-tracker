@@ -1,12 +1,12 @@
 <?php
 
-namespace Awsan\AuthTracker\Factories;
+namespace OwaisKit\AuthTracker\Factories;
 
-use Awsan\AuthTracker\Exceptions\CustomIpProviderException;
-use Awsan\AuthTracker\Exceptions\IpProviderException;
-use Awsan\AuthTracker\Interfaces\IpProvider;
-use Awsan\AuthTracker\IpProviders\Ip2LocationLite;
-use Awsan\AuthTracker\IpProviders\IpApi;
+use OwaisKit\AuthTracker\Exceptions\CustomIpProviderException;
+use OwaisKit\AuthTracker\Exceptions\IpProviderException;
+use OwaisKit\AuthTracker\Interfaces\IpProvider;
+use OwaisKit\AuthTracker\IpProviders\Ip2LocationLite;
+use OwaisKit\AuthTracker\IpProviders\IpApi;
 use Illuminate\Support\Facades\App;
 
 class IpProviderFactory

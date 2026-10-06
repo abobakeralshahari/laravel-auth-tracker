@@ -1,6 +1,6 @@
 <?php
 
-namespace Awsan\AuthTracker\Scopes;
+namespace OwaisKit\AuthTracker\Scopes;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;

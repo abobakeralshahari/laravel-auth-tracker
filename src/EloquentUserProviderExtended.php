@@ -1,6 +1,6 @@
 <?php
 
-namespace Awsan\AuthTracker;
+namespace OwaisKit\AuthTracker;
 
 use Illuminate\Auth\EloquentUserProvider;
 

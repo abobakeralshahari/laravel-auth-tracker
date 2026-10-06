@@ -1,13 +1,13 @@
 <?php
 
-namespace Awsan\AuthTracker\Http\Resources;
+namespace OwaisKit\AuthTracker\Http\Resources;
 
-use Awsan\AuthTracker\Facades\AuthTracker;
+use OwaisKit\AuthTracker\Facades\AuthTracker;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \Awsan\AuthTracker\Models\Device
+ * @mixin \OwaisKit\AuthTracker\Models\Device
  */
 class DeviceResource extends JsonResource
 {

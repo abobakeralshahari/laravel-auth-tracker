@@ -1,6 +1,6 @@
 <?php
 
-namespace Awsan\AuthTracker\Exceptions;
+namespace OwaisKit\AuthTracker\Exceptions;
 
 /**
  * A refresh token that was already rotated was presented again: either

@@ -1,11 +1,11 @@
 <?php
 
-namespace Awsan\AuthTracker\Services;
+namespace OwaisKit\AuthTracker\Services;
 
-use Awsan\AuthTracker\Actions\ResolveDevice;
-use Awsan\AuthTracker\Facades\AuthTracker;
-use Awsan\AuthTracker\Models\Device;
-use Awsan\AuthTracker\Support\DeviceSignal;
+use OwaisKit\AuthTracker\Actions\ResolveDevice;
+use OwaisKit\AuthTracker\Facades\AuthTracker;
+use OwaisKit\AuthTracker\Models\Device;
+use OwaisKit\AuthTracker\Support\DeviceSignal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 

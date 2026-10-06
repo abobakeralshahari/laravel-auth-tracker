@@ -1,6 +1,6 @@
 <?php
 
-namespace Awsan\AuthTracker\Models;
+namespace OwaisKit\AuthTracker\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

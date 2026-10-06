@@ -1,11 +1,11 @@
 <?php
 
-namespace Awsan\AuthTracker\Listeners;
+namespace OwaisKit\AuthTracker\Listeners;
 
-use Awsan\AuthTracker\Actions\RecordLogin;
-use Awsan\AuthTracker\RequestContext;
-use Awsan\AuthTracker\Support\Credential;
-use Awsan\AuthTracker\TrackerManager;
+use OwaisKit\AuthTracker\Actions\RecordLogin;
+use OwaisKit\AuthTracker\RequestContext;
+use OwaisKit\AuthTracker\Support\Credential;
+use OwaisKit\AuthTracker\TrackerManager;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Events\Dispatcher;
 use Laravel\Passport\Events\AccessTokenCreated;

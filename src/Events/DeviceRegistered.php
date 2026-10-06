@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Events;
+namespace OwaisKit\AuthTracker\Events;
 
-use Awsan\AuthTracker\Models\Device;
+use OwaisKit\AuthTracker\Models\Device;
 use Illuminate\Http\Request;
 
 /**

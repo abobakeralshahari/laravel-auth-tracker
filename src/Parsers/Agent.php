@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Parsers;
+namespace OwaisKit\AuthTracker\Parsers;
 
-use Awsan\AuthTracker\Interfaces\UserAgentParser;
+use OwaisKit\AuthTracker\Interfaces\UserAgentParser;
 use Jenssegers\Agent\Agent as Parser;
 
 class Agent implements UserAgentParser

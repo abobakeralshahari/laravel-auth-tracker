@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Tests;
+namespace OwaisKit\AuthTracker\Tests;
 
-use Awsan\AuthTracker\Models\Login;
+use OwaisKit\AuthTracker\Models\Login;
 use Illuminate\Support\Facades\Auth;
 
 class SessionTest extends TestCase

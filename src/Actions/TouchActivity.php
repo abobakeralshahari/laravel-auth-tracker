@@ -1,9 +1,9 @@
 <?php
 
-namespace Awsan\AuthTracker\Actions;
+namespace OwaisKit\AuthTracker\Actions;
 
-use Awsan\AuthTracker\Drivers\SessionDriver;
-use Awsan\AuthTracker\TrackerManager;
+use OwaisKit\AuthTracker\Drivers\SessionDriver;
+use OwaisKit\AuthTracker\TrackerManager;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Cache;
 

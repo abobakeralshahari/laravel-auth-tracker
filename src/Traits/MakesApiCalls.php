@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Traits;
+namespace OwaisKit\AuthTracker\Traits;
 
-use Awsan\AuthTracker\Events\FailedApiCall;
+use OwaisKit\AuthTracker\Events\FailedApiCall;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\TransferException;
 

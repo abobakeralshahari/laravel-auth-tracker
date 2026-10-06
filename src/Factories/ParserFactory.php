@@ -1,10 +1,10 @@
 <?php
 
-namespace Awsan\AuthTracker\Factories;
+namespace OwaisKit\AuthTracker\Factories;
 
-use Awsan\AuthTracker\Interfaces\UserAgentParser;
-use Awsan\AuthTracker\Parsers\Agent;
-use Awsan\AuthTracker\Parsers\WhichBrowser;
+use OwaisKit\AuthTracker\Interfaces\UserAgentParser;
+use OwaisKit\AuthTracker\Parsers\Agent;
+use OwaisKit\AuthTracker\Parsers\WhichBrowser;
 use InvalidArgumentException;
 
 class ParserFactory

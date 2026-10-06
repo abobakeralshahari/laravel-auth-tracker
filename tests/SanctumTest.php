@@ -1,8 +1,8 @@
 <?php
 
-namespace Awsan\AuthTracker\Tests;
+namespace OwaisKit\AuthTracker\Tests;
 
-use Awsan\AuthTracker\Events\PersonalAccessTokenCreated;
+use OwaisKit\AuthTracker\Events\PersonalAccessTokenCreated;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class SanctumTest extends TestCase
